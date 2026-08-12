@@ -49,6 +49,7 @@ Do not create abstractions merely because code looks similar once. Extract an ab
 - Feature-specific UI belongs inside its feature folder.
 - A component nearing **300 lines** must be split into smaller focused components, hooks, or utilities.
 - A component should own one clear UI responsibility. Keep business logic out of presentational components where practical.
+- Custom hooks that consume server state belong in `features/<feature>/hooks/`, not inside `components/`.
 
 ### State ownership
 
@@ -116,21 +117,25 @@ components/
 └── shared/                 # Reusable app-level components
 features/
 ├── auth/
-│   ├── actions.js
+│   ├── api.js
+│   ├── hooks/
+│   │   ├── use-login-mutation.js
+│   │   ├── use-register-mutation.js
+│   │   └── use-logout-mutation.js
 │   ├── components/
-│   ├── schemas.js
-│   └── services.js
+│   ├── query-keys.js
+│   └── schemas.js
 ├── channels/
 │   ├── actions.js
 │   ├── api.js
 │   ├── components/
-│   ├── hooks.js
+│   ├── hooks/
 │   ├── query-keys.js
 │   └── schemas.js
 └── videos/
     ├── api.js
     ├── components/
-    ├── hooks.js
+    ├── hooks/
     ├── query-keys.js
     └── utils.js
 lib/
@@ -293,9 +298,15 @@ videos.byChannel(channelId)
 
 Rules:
 
+- All server state consumed by the UI must go through TanStack React Query (`useQuery`, `useMutation`, or `useInfiniteQuery`).
+- Client components must not call `fetch` directly for application server data; use feature `api.js` functions wrapped by hooks in `hooks/`.
+- React Query hooks live in `features/<feature>/hooks/`, not inside `components/`.
+- Plain fetch/request functions live in `features/<feature>/api.js` (or Server Actions for mutations, wrapped by `useMutation` in hooks).
+- Query keys live in `features/<feature>/query-keys.js`.
 - Use `useQuery` for saved-channel reads.
-- Use `useMutation` for Server Action calls, then invalidate the affected query keys.
+- Use `useMutation` for Server Action calls and Route Handler mutations, then invalidate the affected query keys.
 - Use `useInfiniteQuery` only for the channel video feed.
+- React Hook Form owns local form field state only; mutation lifecycle (`isPending`, `error`, `onSuccess`) comes from React Query.
 - Do not duplicate query results into Zustand.
 - Keep fetch functions and query hooks inside the feature that owns them.
 
