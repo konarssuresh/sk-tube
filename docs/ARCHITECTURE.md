@@ -117,6 +117,9 @@ components/
 └── shared/                 # Reusable app-level components
 features/
 ├── auth/
+│   ├── __tests__/
+│   │   ├── api.test.js
+│   │   └── schemas.test.js
 │   ├── api.js
 │   ├── hooks/
 │   │   ├── use-login-mutation.js
@@ -126,6 +129,7 @@ features/
 │   ├── query-keys.js
 │   └── schemas.js
 ├── channels/
+│   ├── __tests__/
 │   ├── actions.js
 │   ├── api.js
 │   ├── components/
@@ -133,12 +137,18 @@ features/
 │   ├── query-keys.js
 │   └── schemas.js
 └── videos/
+    ├── __tests__/
     ├── api.js
     ├── components/
     ├── hooks/
     ├── query-keys.js
     └── utils.js
 lib/
+├── __tests__/
+│   ├── env.test.js
+│   ├── errors.test.js
+│   └── auth/
+│       └── session.test.js
 ├── auth/
 │   ├── session.js
 │   └── require-current-user.js
@@ -155,6 +165,8 @@ stores/
 docs/
 ├── PRD.md
 └── ARCHITECTURE.md
+__tests__/
+└── proxy.test.js
 proxy.js
 ```
 
@@ -445,6 +457,15 @@ NEXT_PUBLIC_APP_URL=
 Validate server environment variables at application startup through `lib/env.js`. Never prefix secrets with `NEXT_PUBLIC_`. Commit an `.env.example` containing names only.
 
 ## 13. Testing Strategy
+
+### Test file layout
+
+- All Vitest tests live in `__tests__/` folders colocated with the code under test.
+- Never place `*.test.js` or `*.spec.js` alongside source files.
+- Name files `<subject>.test.js` inside `__tests__/`.
+- Mirror subpaths when testing nested modules (for example, `lib/__tests__/auth/session.test.js` for `lib/auth/session.js`).
+- Route Handler integration tests go in `app/api/<route>/__tests__/`.
+- Future Playwright E2E tests go in `e2e/` at the repo root (not Vitest).
 
 ### Unit tests
 

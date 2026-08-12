@@ -5,10 +5,7 @@ import { parseRegisterInput } from "@/features/auth/schemas";
 import { handleRoute } from "@/lib/api/handle-route-error";
 import { setSessionCookie } from "@/lib/auth/session";
 import { connectDB } from "@/lib/db";
-import {
-  duplicateKeyAppError,
-  isMongoDuplicateKeyError,
-} from "@/lib/errors";
+import { duplicateKeyAppError, isMongoDuplicateKeyError } from "@/lib/errors";
 import User, { toSafeUser } from "@/models/User";
 
 export async function POST(request) {
@@ -20,10 +17,10 @@ export async function POST(request) {
 
     const existingUser = await User.findOne({ email });
 
+    console.log("existingUser", existingUser);
+
     if (existingUser) {
-      throw duplicateKeyAppError(
-        "An account with this email already exists.",
-      );
+      throw duplicateKeyAppError("An account with this email already exists.");
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -34,6 +31,8 @@ export async function POST(request) {
       user = await User.create({ name, email, passwordHash });
     } catch (error) {
       if (isMongoDuplicateKeyError(error)) {
+        console.log("error is mongo duplicate key error");
+        console.log(error);
         throw duplicateKeyAppError(
           "An account with this email already exists.",
         );

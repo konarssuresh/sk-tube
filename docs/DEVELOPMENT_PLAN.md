@@ -44,6 +44,7 @@ Prepare the Next.js App Router project for feature work without building product
   - Page/container layout, loading state, empty state, error state
 - Create the initial feature and library folder boundaries described in `ARCHITECTURE.md`.
 - Establish per-feature `api.js`, `hooks/`, and `query-keys.js` boundaries; all client server-state reads and writes use React Query hooks.
+- Place all Vitest tests in colocated `__tests__/` folders; do not co-locate `*.test.js` next to source.
 - Add a small Zustand UI store only for genuinely shared client UI state, such as the add-channel dialog.
 - Configure `next/image` remote patterns for YouTube image hosts.
 
@@ -91,7 +92,7 @@ Create the secure server-side foundation for users, saved channels, validation, 
 - User email uniqueness and saved-channel duplicate uniqueness are enforced by MongoDB indexes.
 - Password hashes are never included in ordinary user reads or API responses.
 - Environment validation fails clearly when a required secret is missing.
-- Domain utilities have unit tests, including the exact two-minute duration boundary.
+- Domain utilities have unit tests in `lib/__tests__/` and `features/*/__tests__/`, including the exact two-minute duration boundary.
 
 ## Phase 2 — Email/Password Authentication and Route Protection
 
@@ -139,12 +140,20 @@ Allow Google sign-in only as a linked authentication method for a pre-existing e
 
 ### Tasks
 
-- Configure Google OAuth credentials and redirect URI in Google Cloud.
+**Google Cloud setup (manual):**
+
+1. Create OAuth 2.0 Web application credentials in Google Cloud Console.
+2. Add authorized redirect URI: `{NEXT_PUBLIC_APP_URL}/api/auth/google/callback` (for example `http://localhost:3000/api/auth/google/callback` in local development).
+3. Copy `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` into `.env`.
+4. Configure the OAuth consent screen to request `openid`, `email`, and `profile` scopes only.
+
+**Implementation:**
+
 - Add `lib/google-auth.js` for OAuth URL generation, callback code exchange, and ID-token verification through `google-auth-library`.
 - Add Google authentication routes:
   - `GET /api/auth/google`
   - `GET /api/auth/google/callback`
-- Add a Google login action to the login page.
+- Add a Google login button to the login page (full-page redirect to `GET /api/auth/google`; not a React Query mutation).
 - In the callback, require both a Google subject ID and a verified email.
 - Find the existing User by normalized verified email.
 - Reject a Google login if no password-based user exists; never create a user from Google in MVP.
@@ -265,12 +274,12 @@ Verify the full MVP against the PRD and prepare it for a safe first deployment.
 - Confirm reusable inputs, dialogs, cards, loaders, empty states, and error states are shared rather than reimplemented.
 - Test keyboard navigation, focus management in dialogs, and touch-friendly controls.
 - Test mobile, tablet, and desktop layouts.
-- Add unit tests for:
+- Add unit tests in colocated `__tests__/` folders per `ARCHITECTURE.md` for:
   - channel input parsing
   - duration parsing and <120-second filtering
   - JWT creation and verification
   - Zod validation and YouTube response mapping
-- Add integration tests for:
+- Add integration tests in colocated `__tests__/` folders per `ARCHITECTURE.md` for:
   - auth APIs and authorization checks
   - Google existing-account linking
   - saved-channel ownership and duplicate prevention

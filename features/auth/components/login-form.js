@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { GoogleLoginButton } from "@/features/auth/components/google-login-button";
 import { useLoginMutation } from "@/features/auth/hooks/use-login-mutation";
 
-export function LoginForm() {
+export function LoginForm({ googleAuthError }) {
   const { formError, submit, isPending } = useLoginMutation();
   const {
     register,
@@ -63,6 +64,10 @@ export function LoginForm() {
         ) : null}
       </div>
 
+      {googleAuthError ? (
+        <FormError className="mb-4" message={googleAuthError} />
+      ) : null}
+
       {formError ? <FormError className="mb-4" message={formError} /> : null}
 
       <div className="mt-[25px] grid gap-3">
@@ -75,6 +80,8 @@ export function LoginForm() {
           {isPending ? "Signing in..." : "Sign in →"}
         </Button>
       </div>
+
+      <GoogleLoginButton />
 
       <p className="mt-[25px] text-center text-sm text-muted">
         New to SKTube?{" "}

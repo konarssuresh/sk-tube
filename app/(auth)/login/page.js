@@ -1,12 +1,15 @@
 import { AuthBrand } from "@/features/auth/components/auth-brand";
 import { AuthLayout } from "@/features/auth/components/auth-layout";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { getGoogleAuthErrorMessage } from "@/features/auth/google-auth-errors";
 
 export const metadata = {
   title: "Sign in — SKTube",
 };
 
-export default function LoginPage() {
+export default async function LoginPage({ searchParams }) {
+  const params = await searchParams;
+  const googleAuthError = getGoogleAuthErrorMessage(params?.error);
   return (
     <AuthLayout
       visual={
@@ -55,7 +58,7 @@ export default function LoginPage() {
         Sign in to browse the latest long-form uploads from the creators you
         follow.
       </p>
-      <LoginForm />
+      <LoginForm googleAuthError={googleAuthError} />
     </AuthLayout>
   );
 }
