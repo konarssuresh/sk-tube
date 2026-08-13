@@ -42,6 +42,26 @@ const savedChannelSchema = new mongoose.Schema(
 savedChannelSchema.index({ userId: 1, youtubeChannelId: 1 }, { unique: true });
 savedChannelSchema.index({ userId: 1, createdAt: -1 });
 
+export function toSafeChannel(channel) {
+  if (!channel) {
+    return null;
+  }
+
+  const plainChannel =
+    typeof channel.toObject === "function" ? channel.toObject() : { ...channel };
+
+  return {
+    id: String(plainChannel._id ?? plainChannel.id),
+    youtubeChannelId: plainChannel.youtubeChannelId,
+    title: plainChannel.title,
+    handle: plainChannel.handle ?? null,
+    thumbnailUrl: plainChannel.thumbnailUrl,
+    uploadsPlaylistId: plainChannel.uploadsPlaylistId,
+    createdAt: plainChannel.createdAt,
+    updatedAt: plainChannel.updatedAt,
+  };
+}
+
 const SavedChannel =
   mongoose.models.SavedChannel ||
   mongoose.model("SavedChannel", savedChannelSchema);

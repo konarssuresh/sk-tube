@@ -27,6 +27,18 @@ export const channelIdSchema = z
   .trim()
   .regex(/^[a-f\d]{24}$/i, "Invalid channel ID.");
 
+export const channelPreviewSchema = z.object({
+  youtubeChannelId: z.string().trim().min(1, "Channel ID is required."),
+  title: z.string().trim().min(1, "Channel title is required."),
+  handle: z.string().trim().nullable(),
+  thumbnailUrl: z.string().url("Channel thumbnail is required."),
+  uploadsPlaylistId: z.string().trim().min(1, "Uploads playlist is required."),
+});
+
+export const addChannelInputSchema = z.object({
+  input: channelInputSchema,
+});
+
 export function normalizeChannelInput(input) {
   const result = channelInputSchema.safeParse(input);
 
@@ -65,4 +77,24 @@ export function parseChannelId(input) {
   }
 
   return result.data;
+}
+
+export function parseChannelPreview(input) {
+  const result = channelPreviewSchema.safeParse(input);
+
+  if (!result.success) {
+    throw fromZodError(result.error);
+  }
+
+  return result.data;
+}
+
+export function parseAddChannelInput(input) {
+  const result = addChannelInputSchema.safeParse(input);
+
+  if (!result.success) {
+    throw fromZodError(result.error);
+  }
+
+  return normalizeChannelInput(result.data.input);
 }

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   channelIdSchema,
+  channelPreviewSchema,
   normalizeChannelInput,
   parseChannelId,
+  parseChannelPreview,
 } from "@/features/channels/schemas";
 import { AppError, AppErrorCode } from "@/lib/errors";
 
@@ -55,5 +57,32 @@ describe("channel schemas", () => {
       "507f1f77bcf86cd799439011",
     );
     expect(channelIdSchema.safeParse("not-an-id").success).toBe(false);
+  });
+
+  it("accepts valid channel previews", () => {
+    expect(
+      parseChannelPreview({
+        youtubeChannelId: "UCBa659QWEk1AI4Tg--mrJ2A",
+        title: "Fireship",
+        handle: "@Fireship",
+        thumbnailUrl: "https://yt3.ggpht.com/high",
+        uploadsPlaylistId: "UUBa659QWEk1AI4Tg--mrJ2A",
+      }),
+    ).toEqual({
+      youtubeChannelId: "UCBa659QWEk1AI4Tg--mrJ2A",
+      title: "Fireship",
+      handle: "@Fireship",
+      thumbnailUrl: "https://yt3.ggpht.com/high",
+      uploadsPlaylistId: "UUBa659QWEk1AI4Tg--mrJ2A",
+    });
+  });
+
+  it("rejects incomplete channel previews", () => {
+    expect(
+      channelPreviewSchema.safeParse({
+        youtubeChannelId: "UCBa659QWEk1AI4Tg--mrJ2A",
+        title: "Fireship",
+      }).success,
+    ).toBe(false);
   });
 });
