@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatPublishedDate,
+  formatVideoDuration,
   isVideoEligible,
   parseIso8601Duration,
 } from "@/features/videos/utils";
@@ -94,5 +96,26 @@ describe("isVideoEligible", () => {
     ).toBe(false);
 
     expect(isVideoEligible(null)).toBe(false);
+  });
+});
+
+describe("formatVideoDuration", () => {
+  it("formats seconds into display durations", () => {
+    expect(formatVideoDuration(45)).toBe("0:45");
+    expect(formatVideoDuration(120)).toBe("2:00");
+    expect(formatVideoDuration(3723)).toBe("1:02:03");
+  });
+});
+
+describe("formatPublishedDate", () => {
+  it("returns a relative label for recent dates", () => {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    expect(formatPublishedDate(twoDaysAgo.toISOString())).toMatch(/day/);
+  });
+
+  it("returns an absolute label for older dates", () => {
+    expect(formatPublishedDate("2020-01-15T00:00:00.000Z")).toMatch(/Jan/);
   });
 });

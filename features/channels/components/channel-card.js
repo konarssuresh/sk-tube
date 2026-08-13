@@ -31,7 +31,7 @@ export function ChannelCard({ channel, onRemove, className }) {
             className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           />
         </div>
-        <div className="p-4 pr-12">
+        <div className="p-4 pr-14">
           <h2 className="line-clamp-2 text-sm font-semibold tracking-[-0.02em] text-foreground">
             {channel.title}
           </h2>
@@ -44,7 +44,7 @@ export function ChannelCard({ channel, onRemove, className }) {
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute right-3 bottom-3 size-9 text-muted hover:bg-surface-hover hover:text-[#ffafb4]"
+        className="absolute right-3 bottom-3 text-muted hover:bg-surface-hover hover:text-[#ffafb4]"
         aria-label={`Remove ${channel.title}`}
         onClick={handleRemoveClick}
       >

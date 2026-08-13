@@ -4,6 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+import { FieldError } from "@/components/shared/field-error";
 import { FormError } from "@/components/shared/form-error";
 import { Button } from "@/components/ui/button";
 import {
@@ -145,11 +146,7 @@ export function AddChannelDialog() {
                   disabled={isBusy}
                   {...register("input")}
                 />
-                {errors.input ? (
-                  <p className="text-[13px] text-[#ffb1b6]">
-                    {errors.input.message}
-                  </p>
-                ) : null}
+                <FieldError message={errors.input?.message} />
               </div>
 
               {formError ? <FormError message={formError} /> : null}

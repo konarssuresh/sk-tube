@@ -250,7 +250,7 @@ Display current eligible YouTube uploads without persisting video data.
   - continue through underlying YouTube pages until 50 eligible videos are collected or results end
   - return only mapped SKTube video fields and an opaque next cursor
 - Create video query keys and `useInfiniteQuery` hook in `features/videos/hooks/`.
-- Build video-feed, video-card, load-more sentinel, loading, retry, empty, and end-of-results components.
+- Build video-feed, video-card, load-more sentinel, shimmer skeleton row, retry, empty, and end-of-results components.
 - Open video links on YouTube in a new desktop tab with safe link attributes; preserve normal mobile app/browser behavior.
 - Keep React Query cache in memory only. Do not persist videos in MongoDB or introduce server-side caching/background sync.
 
@@ -261,6 +261,7 @@ Display current eligible YouTube uploads without persisting video data.
 - Videos under two minutes, livestreams, and unavailable videos are absent.
 - Video data remains current from YouTube and is never saved as application video records.
 - The feed handles YouTube errors, no eligible videos, and end of results clearly.
+- Initial and paginated video loading show a one-row shimmer skeleton grid (1/2/3 cards by breakpoint) instead of a text loader.
 
 ## Phase 7 — Quality, Responsive Polish, and Release Readiness
 
@@ -300,6 +301,8 @@ Verify the full MVP against the PRD and prepare it for a safe first deployment.
 - No video, API key, password hash, or JWT secret is exposed to the browser.
 - There are no known authorization bypasses or user-data ownership gaps.
 - The application is usable across the supported responsive layouts.
+
+**Status:** Phase 7 complete. Lint, Vitest, Playwright, and production build pass; PRD §12 is covered by the automated suite plus the production checklist in `README.md`.
 
 ## 3. Out of Scope for This Plan
 

@@ -413,7 +413,7 @@ Place reusable components in `components/ui` or `components/shared`, including:
 - Button, input, label, form field, and validation message.
 - Dialog/modal and confirmation dialog.
 - Search input.
-- Loading indicator/skeleton.
+- Loading indicator/skeleton. The channel video feed uses a responsive one-row `VideoCardSkeleton` shimmer during the initial fetch and infinite-scroll pagination; do not use generic spinners for this feed.
 - Empty-state and error-state components.
 - Channel card and video-card primitives when their display behavior is reused.
 

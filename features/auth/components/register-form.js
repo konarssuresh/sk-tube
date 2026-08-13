@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { registerSchema } from "@/features/auth/schemas";
+import { FieldError } from "@/components/shared/field-error";
 import { FormError } from "@/components/shared/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,9 +45,7 @@ export function RegisterForm() {
           aria-invalid={Boolean(errors.name)}
           {...register("name")}
         />
-        {errors.name ? (
-          <p className="text-[13px] text-[#ffb1b6]">{errors.name.message}</p>
-        ) : null}
+        <FieldError message={errors.name?.message} />
       </div>
 
       <div className="mb-[17px] grid gap-2">
@@ -59,9 +58,7 @@ export function RegisterForm() {
           aria-invalid={Boolean(errors.email)}
           {...register("email")}
         />
-        {errors.email ? (
-          <p className="text-[13px] text-[#ffb1b6]">{errors.email.message}</p>
-        ) : null}
+        <FieldError message={errors.email?.message} />
       </div>
 
       <div className="mb-[17px] grid gap-2">
@@ -74,11 +71,7 @@ export function RegisterForm() {
           aria-invalid={Boolean(errors.password)}
           {...register("password")}
         />
-        {errors.password ? (
-          <p className="text-[13px] text-[#ffb1b6]">
-            {errors.password.message}
-          </p>
-        ) : null}
+        <FieldError message={errors.password?.message} />
       </div>
 
       {formError ? <FormError className="mb-4" message={formError} /> : null}

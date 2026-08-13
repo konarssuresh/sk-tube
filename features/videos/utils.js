@@ -51,3 +51,59 @@ export function isVideoEligible(video) {
 
   return durationSeconds >= 120;
 }
+
+export function formatVideoDuration(seconds) {
+  if (seconds === null || seconds === undefined || Number.isNaN(seconds)) {
+    return "";
+  }
+
+  const totalSeconds = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+  }
+
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
+
+export function formatPublishedDate(isoDate) {
+  if (!isoDate) {
+    return "";
+  }
+
+  const publishedAt = new Date(isoDate);
+
+  if (Number.isNaN(publishedAt.getTime())) {
+    return "";
+  }
+
+  const now = new Date();
+  const diffMs = publishedAt.getTime() - now.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (Math.abs(diffDays) < 7) {
+    const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+    if (Math.abs(diffDays) >= 1) {
+      return formatter.format(diffDays, "day");
+    }
+
+    const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+
+    if (Math.abs(diffHours) >= 1) {
+      return formatter.format(diffHours, "hour");
+    }
+
+    const diffMinutes = Math.round(diffMs / (1000 * 60));
+    return formatter.format(diffMinutes, "minute");
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: publishedAt.getFullYear() === now.getFullYear() ? undefined : "numeric",
+  }).format(publishedAt);
+}

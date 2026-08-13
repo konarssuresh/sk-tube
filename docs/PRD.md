@@ -140,6 +140,7 @@ A user who has previously created an email/password account and may later choose
 - Load videos newest first.
 - Fetch up to 50 videos per page.
 - Support infinite scrolling while more pages are available.
+- While the first page or additional pages are loading, show a one-row shimmer skeleton grid that matches the video card layout (one, two, or three placeholders depending on screen width).
 - Display for each eligible video:
   - Thumbnail
   - Title
@@ -225,6 +226,7 @@ A user who has previously created an email/password account and may later choose
 
 ### Channel Videos
 
+- Loading videos: show a responsive one-row shimmer skeleton grid matching the video card layout.
 - No eligible videos: explain that no supported videos are currently available.
 - No additional videos: indicate that the end of available results has been reached.
 - Video retrieval failure: show a retry action.
