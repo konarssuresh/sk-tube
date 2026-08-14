@@ -401,6 +401,7 @@ Selecting a video navigates to the protected SKTube route `/channels/[channelId]
 
 - Use the official privacy-enhanced YouTube IFrame Player API with host `https://www.youtube-nocookie.com`.
 - Include `autoplay=1`, `enablejsapi=1`, `playsinline=1`, `rel=0`, and the application `origin` parameter; call `playVideo()` on player ready.
+- Preserve the native YouTube controls, branding, fullscreen option, and at least a 16:9 responsive viewport.
 - On mobile viewports, start muted when required by browser autoplay policy; users can unmute through YouTube’s native controls.
 - Do not place overlays or custom controls over any portion of the player.
 - Do not load or persist video playback progress, history, or analytics in MVP.
