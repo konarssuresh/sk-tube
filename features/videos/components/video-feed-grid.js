@@ -1,7 +1,7 @@
 import { VideoCard } from "@/features/videos/components/video-card";
 import { cn } from "@/lib/utils";
 
-export function VideoFeedGrid({ videos, channelTitle, className, ...props }) {
+export function VideoFeedGrid({ videos, channelId, channelTitle, className, ...props }) {
   return (
     <ul
       className={cn(
@@ -12,7 +12,11 @@ export function VideoFeedGrid({ videos, channelTitle, className, ...props }) {
     >
       {videos.map((video) => (
         <li key={video.videoId}>
-          <VideoCard video={video} channelTitle={channelTitle} />
+          <VideoCard
+            video={video}
+            channelId={channelId}
+            channelTitle={channelTitle}
+          />
         </li>
       ))}
     </ul>

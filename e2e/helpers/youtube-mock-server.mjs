@@ -39,6 +39,7 @@ function videoItem(id) {
     snippet: {
       title: `Eligible ${id}`,
       publishedAt: "2026-01-01T00:00:00.000Z",
+      channelId: CHANNEL_ID,
       liveBroadcastContent: "none",
       thumbnails: {
         high: { url: THUMBNAIL_URL },
@@ -49,6 +50,7 @@ function videoItem(id) {
     },
     status: {
       privacyStatus: "public",
+      embeddable: id !== "nonembedab1",
     },
   };
 }

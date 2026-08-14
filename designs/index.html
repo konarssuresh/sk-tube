@@ -250,6 +250,20 @@
       .spinner { width: 17px; height: 17px; border: 2px solid #474754; border-top-color: var(--accent); border-radius: 50%; animation: spin .75s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
 
+      .playback-layout { width: min(900px, 100%); margin: 0 auto; }
+      .player-surface { position: relative; display: grid; aspect-ratio: 16 / 9; overflow: hidden; place-items: center; border: 1px solid #353542; border-radius: 15px; background: radial-gradient(circle at 50% 45%, #29202c, #08080c 57%); box-shadow: var(--shadow); }
+      .player-surface::before { position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255,255,255,.05), transparent 31%); content: ""; }
+      .player-brand { position: relative; display: flex; align-items: center; gap: 9px; color: #ececf0; font-size: 14px; font-weight: 750; }
+      .player-play { display: grid; width: 56px; height: 39px; place-items: center; border-radius: 12px; background: #f03d45; color: #fff; font-size: 15px; }
+      .player-caption { position: absolute; right: 15px; bottom: 13px; color: #ababba; font-size: 11px; }
+      .playback-meta { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-top: 22px; }
+      .playback-meta h1 { margin: 0; font-size: clamp(23px, 3.6vw, 32px); letter-spacing: -.04em; }
+      .playback-meta p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+      .playback-actions { display: flex; flex: 0 0 auto; gap: 8px; }
+      .fallback-panel { display: grid; min-height: 360px; place-items: center; border: 1px solid #49323b; border-radius: 15px; background: linear-gradient(145deg, #21161c, #141419); text-align: center; }
+      .fallback-panel .empty-content { max-width: 430px; }
+      .state-toggle { display: flex; gap: 8px; margin: 0 0 22px; }
+
       .flow-note { position: fixed; right: 18px; bottom: 17px; z-index: 5; padding: 9px 11px; border: 1px solid var(--border); border-radius: 9px; color: var(--muted); background: rgba(25,25,33,.92); font-size: 12px; box-shadow: 0 8px 25px rgba(0,0,0,.3); }
 
       @media (max-width: 800px) {
@@ -273,6 +287,9 @@
         .channel-hero { align-items: flex-start; }
         .hero-avatar { width: 59px; height: 59px; }
         .channel-hero h1 { font-size: 25px; }
+        .playback-meta { flex-direction: column; }
+        .playback-actions { width: 100%; }
+        .playback-actions .btn { flex: 1; }
         .dialog { padding: 20px; }
         .dialog-actions { flex-direction: column-reverse; }
         .dialog-actions .btn { width: 100%; }
@@ -292,6 +309,7 @@
         <button data-target="remove-channel">Remove channel</button>
         <button data-target="empty">Empty & error</button>
         <button data-target="videos">Video feed</button>
+        <button data-target="player">Player & fallback</button>
       </div>
     </nav>
 
@@ -371,7 +389,11 @@
       </section>
 
       <section class="screen" id="videos">
-        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><a class="back-link" href="#dashboard" data-nav="dashboard">← Back to My Channels</a><div class="channel-hero"><div class="hero-avatar">F</div><div><h1>Fireship</h1><p>@Fireship · Latest long-form uploads</p></div></div><div class="video-grid"><a class="video-card" href="#"><div class="video-thumb"><span class="duration">12:08</span></div><div class="video-info"><h3>The JavaScript features you are probably missing</h3><p>Fireship · 2 days ago</p></div></a><a class="video-card" href="#"><div class="video-thumb two"><span class="duration">8:41</span></div><div class="video-info"><h3>A practical guide to building less, better software</h3><p>Fireship · 1 week ago</p></div></a><a class="video-card" href="#"><div class="video-thumb three"><span class="duration">15:22</span></div><div class="video-info"><h3>Everything new in modern React, explained</h3><p>Fireship · 2 weeks ago</p></div></a><a class="video-card" href="#"><div class="video-thumb four"><span class="duration">9:03</span></div><div class="video-info"><h3>The cleanest way to structure a full-stack app</h3><p>Fireship · 3 weeks ago</p></div></a><a class="video-card" href="#"><div class="video-thumb five"><span class="duration">11:17</span></div><div class="video-info"><h3>Five browser APIs worth knowing about</h3><p>Fireship · 1 month ago</p></div></a><a class="video-card" href="#"><div class="video-thumb two"><span class="duration">7:45</span></div><div class="video-info"><h3>A better mental model for web performance</h3><p>Fireship · 1 month ago</p></div></a></div><div class="load-state"><span class="spinner"></span> Loading more videos</div></div></div>
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><a class="back-link" href="#dashboard" data-nav="dashboard">← Back to My Channels</a><div class="channel-hero"><div class="hero-avatar">F</div><div><h1>Fireship</h1><p>@Fireship · Latest long-form uploads</p></div></div><div class="video-grid"><a class="video-card" href="#player" data-nav="player"><div class="video-thumb"><span class="duration">12:08</span></div><div class="video-info"><h3>The JavaScript features you are probably missing</h3><p>Fireship · 2 days ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb two"><span class="duration">8:41</span></div><div class="video-info"><h3>A practical guide to building less, better software</h3><p>Fireship · 1 week ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb three"><span class="duration">15:22</span></div><div class="video-info"><h3>Everything new in modern React, explained</h3><p>Fireship · 2 weeks ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb four"><span class="duration">9:03</span></div><div class="video-info"><h3>The cleanest way to structure a full-stack app</h3><p>Fireship · 3 weeks ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb five"><span class="duration">11:17</span></div><div class="video-info"><h3>Five browser APIs worth knowing about</h3><p>Fireship · 1 month ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb two"><span class="duration">7:45</span></div><div class="video-info"><h3>A better mental model for web performance</h3><p>Fireship · 1 month ago</p></div></a></div><div class="load-state"><span class="spinner"></span> Loading more videos</div></div></div>
+      </section>
+
+      <section class="screen" id="player">
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page playback-layout"><a class="back-link" href="#videos" data-nav="videos">← Back to Fireship videos</a><div class="state-toggle"><button class="btn btn-primary" type="button" data-player-state="play">Player view</button><button class="btn btn-outline" type="button" data-player-state="blocked">Blocked playback</button></div><section id="player-ready"><div class="player-surface"><div class="player-brand"><span class="player-play">▶</span><span>Official YouTube player</span></div><span class="player-caption">YouTube controls remain visible here</span></div><div class="playback-meta"><div><div class="eyebrow">Fireship · 2 days ago</div><h1>The JavaScript features you are probably missing</h1><p>12:08 · Plays securely in SKTube through YouTube’s embedded player.</p></div><div class="playback-actions"><button class="btn btn-outline">↗ Open on YouTube</button></div></div></section><section id="player-blocked" class="fallback-panel" hidden><div class="empty-content"><div class="empty-graphic">▶</div><h2>This video can’t play here.</h2><p>YouTube does not allow this video to be embedded in SKTube. You can still watch it directly on YouTube.</p><button class="btn btn-primary">↗ Open on YouTube</button><p class="subtle" style="margin-top:17px;font-size:12px">Your channel library and video list remain unchanged.</p></div></section></div></div>
       </section>
     </main>
     <div class="flow-note">Design reference · MVP flows</div>
@@ -398,6 +420,17 @@
         });
         searchEmpty.hidden = count !== 0;
       });
+      const playerReady = document.querySelector('#player-ready');
+      const playerBlocked = document.querySelector('#player-blocked');
+      document.querySelectorAll('[data-player-state]').forEach((button) => button.addEventListener('click', () => {
+        const blocked = button.dataset.playerState === 'blocked';
+        playerReady.hidden = blocked;
+        playerBlocked.hidden = !blocked;
+        document.querySelectorAll('[data-player-state]').forEach((item) => {
+          item.classList.toggle('btn-primary', item === button);
+          item.classList.toggle('btn-outline', item !== button);
+        });
+      }));
     </script>
   </body>
 </html>

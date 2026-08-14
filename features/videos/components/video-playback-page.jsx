@@ -1,0 +1,72 @@
+import Link from "next/link";
+
+import { PageContainer } from "@/components/shared/page-container";
+import { Button } from "@/components/ui/button";
+import { EmbeddedPlaybackFallback } from "@/features/videos/components/embedded-playback-fallback";
+import { YoutubePlayer } from "@/features/videos/components/youtube-player";
+import {
+  buildYoutubeEmbedUrl,
+  buildYoutubeWatchUrl,
+} from "@/features/videos/player-utils";
+import {
+  formatPublishedDate,
+  formatVideoDuration,
+  parseIso8601Duration,
+} from "@/features/videos/utils";
+
+export function VideoPlaybackPage({ channel, video, appOrigin }) {
+  const durationLabel = formatVideoDuration(
+    parseIso8601Duration(video.duration),
+  );
+  const publishedLabel = formatPublishedDate(video.publishedAt);
+  const embedUrl = buildYoutubeEmbedUrl({
+    videoId: video.videoId,
+    appOrigin,
+  });
+  const watchUrl = buildYoutubeWatchUrl(video.videoId);
+
+  return (
+    <PageContainer className="mx-auto max-w-[900px]">
+      <Link
+        href={`/channels/${channel.id}`}
+        className="mb-6 inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
+      >
+        ← Back to {channel.title} videos
+      </Link>
+
+      {video.embeddable ? (
+        <YoutubePlayer
+          src={embedUrl}
+          title={`YouTube video player: ${video.title}`}
+        />
+      ) : (
+        <EmbeddedPlaybackFallback videoId={video.videoId} />
+      )}
+
+      <div className="mt-[22px] flex flex-col items-start justify-between gap-[18px] sm:flex-row">
+        <div className="min-w-0">
+          <p className="text-xs font-bold tracking-[0.08em] text-muted uppercase">
+            {channel.title}
+            {publishedLabel ? ` · ${publishedLabel}` : ""}
+          </p>
+          <h1 className="mt-1 text-[clamp(23px,3.6vw,32px)] leading-tight font-bold tracking-[-0.04em]">
+            {video.title}
+          </h1>
+          <p className="mt-1.5 text-sm text-muted">
+            {durationLabel
+              ? `${durationLabel} · Plays securely in SKTube through YouTube's embedded player.`
+              : "Plays securely in SKTube through YouTube's embedded player."}
+          </p>
+        </div>
+
+        <div className="flex w-full shrink-0 sm:w-auto">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <a href={watchUrl} target="_blank" rel="noopener noreferrer">
+              Open on YouTube
+            </a>
+          </Button>
+        </div>
+      </div>
+    </PageContainer>
+  );
+}

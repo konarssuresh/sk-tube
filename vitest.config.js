@@ -7,11 +7,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["**/__tests__/**/*.{test,spec}.{js,mjs,cjs}"],
+    include: ["**/__tests__/**/*.{test,spec}.{js,mjs,cjs,jsx}"],
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
     },
+    extensions: [".jsx", ".js", ".json"],
+  },
+  esbuild: {
+    jsx: "automatic",
   },
 });

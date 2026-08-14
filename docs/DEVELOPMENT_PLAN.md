@@ -19,7 +19,7 @@ Implement phases in order. A phase is complete only when its completion criteria
 | 3 | Google linking for existing password accounts | Phase 2 |
 | 4 | Saved-channel dashboard, search, and removal | Phase 2 |
 | 5 | Add-channel preview and confirmation | Phases 1, 2, 4 |
-| 6 | Current YouTube video feed and infinite scroll | Phases 1, 2, 4 |
+| 6 | Current YouTube video feed, embedded playback, and infinite scroll | Phases 1, 2, 4 |
 | 7 | Responsive polish, error states, and test coverage | Phases 0–6 |
 
 ## Phase 0 — Foundation and Shared UI
@@ -230,28 +230,32 @@ Allow a user to safely add a supported YouTube channel only after reviewing a fe
 - API keys and raw YouTube responses are never exposed to the browser.
 - Invalid input, not found, duplicate, and upstream failures have clear UI states.
 
-## Phase 6 — Channel Video Feed and Infinite Scroll
+## Phase 6 — Channel Video Feed, Embedded Playback, and Infinite Scroll
 
 ### Goal
 
-Display current eligible YouTube uploads without persisting video data.
+Display current eligible YouTube uploads and play them through the official embedded YouTube player without persisting video data.
 
 ### Tasks
 
-- Add a protected channel-detail page and verify the saved channel belongs to the current user.
+- Add a protected channel-detail page and a protected video-playback page; verify the saved channel belongs to the current user in both routes.
 - Add `GET /api/channels/[channelId]/videos?cursor=`.
 - In the Route Handler:
   - load the owned SavedChannel and its uploads playlist ID
   - retrieve playlist items in raw pages of up to 50
-  - retrieve matching video details in batches
+  - retrieve matching video details and `status.embeddable` in batches
   - exclude missing/private/unavailable videos
   - exclude live, upcoming, and archived livestreams
   - exclude videos with duration strictly below 120 seconds
   - continue through underlying YouTube pages until 50 eligible videos are collected or results end
-  - return only mapped SKTube video fields and an opaque next cursor
+  - return only mapped SKTube video fields, including embed eligibility, and an opaque next cursor
 - Create video query keys and `useInfiniteQuery` hook in `features/videos/hooks/`.
 - Build video-feed, video-card, load-more sentinel, shimmer skeleton row, retry, empty, and end-of-results components.
-- Open video links on YouTube in a new desktop tab with safe link attributes; preserve normal mobile app/browser behavior.
+- Build a reusable responsive `YoutubePlayer` using YouTube’s official privacy-enhanced iframe embed.
+- Navigate a selected video to its protected SKTube playback page instead of opening a new browser tab.
+- Use `playsinline=1`, `rel=0`, and the application origin in the embed URL; do not autoplay or overlay/customize YouTube player controls.
+- Provide a visible “Open on YouTube” fallback on every playback page.
+- If `status.embeddable` is false or embedded playback fails, show the fallback state instead of a broken player.
 - Keep React Query cache in memory only. Do not persist videos in MongoDB or introduce server-side caching/background sync.
 
 ### Completion Criteria
@@ -262,6 +266,8 @@ Display current eligible YouTube uploads without persisting video data.
 - Video data remains current from YouTube and is never saved as application video records.
 - The feed handles YouTube errors, no eligible videos, and end of results clearly.
 - Initial and paginated video loading show a one-row shimmer skeleton grid (1/2/3 cards by breakpoint) instead of a text loader.
+- Selecting an eligible video loads the official YouTube embedded player inside SKTube.
+- Non-embeddable or blocked videos show a clear fallback state with “Open on YouTube”.
 
 ## Phase 7 — Quality, Responsive Polish, and Release Readiness
 
@@ -285,11 +291,13 @@ Verify the full MVP against the PRD and prepare it for a safe first deployment.
   - Google existing-account linking
   - saved-channel ownership and duplicate prevention
   - paginated video filtering/cursor behavior with mocked YouTube responses
+  - embedded-player URL generation and non-embeddable fallback behavior
 - Add Playwright coverage for:
   - registration/login/logout
   - protected-route redirect
   - add, search, and remove channel
   - channel video browsing and loading another page
+  - embedded video playback and the “Open on YouTube” fallback
 - Run lint, build, and the full test suite.
 - Verify production environment variables, Google redirect URI, cookie security, and MongoDB connectivity.
 - Check each PRD MVP acceptance criterion before release.

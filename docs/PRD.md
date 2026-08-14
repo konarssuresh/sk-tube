@@ -49,7 +49,8 @@ A user who has previously created an email/password account and may later choose
 - As a user, I can search my saved channels by name or handle.
 - As a user, I can remove a channel from my library.
 - As a user, I can browse a channel’s latest eligible videos with infinite scrolling.
-- As a user, I can open a video on YouTube.
+- As a user, I can watch an eligible video in SKTube using the official YouTube embedded player.
+- As a user, I can open a video on YouTube when embedded playback is unavailable or I prefer YouTube.
 
 ## 6. User Flows
 
@@ -86,7 +87,9 @@ A user who has previously created an email/password account and may later choose
 4. User selects a channel.
 5. SKTube fetches eligible videos directly from YouTube.
 6. Videos load in pages of up to 50 as the user scrolls.
-7. User selects a video to open it on YouTube in a new browser tab, or through the appropriate YouTube app behavior on mobile.
+7. User selects a video to open its SKTube playback view.
+8. SKTube loads the official embedded YouTube player for the selected video.
+9. If YouTube blocks embedded playback, SKTube explains the issue and provides an “Open on YouTube” fallback.
 
 ### Remove a channel
 
@@ -150,9 +153,11 @@ A user who has previously created an email/password account and may later choose
   - YouTube Shorts
   - Live streams
   - Unavailable, deleted, private, or otherwise inaccessible videos
-- Opening a video must navigate to YouTube:
-  - Open in a new tab on desktop.
-  - Allow normal browser/mobile behavior to open the appropriate YouTube app where available.
+- Selecting a video opens an SKTube playback view with the official YouTube embedded player.
+- The player must be responsive, maintain a 16:9 layout, and preserve YouTube’s native controls and branding.
+- Do not autoplay videos by default.
+- Provide an “Open on YouTube” link as a visible fallback and secondary action.
+- If a video is not embeddable or playback is blocked by YouTube, show a clear explanation and the fallback link.
 
 ## 8. Data Requirements
 
@@ -192,6 +197,7 @@ A user who has previously created an email/password account and may later choose
 - Use YouTube pagination tokens to fetch subsequent pages.
 - Request up to 50 videos per page.
 - Apply eligibility filtering so Shorts, live streams, and unavailable videos are not shown.
+- Retrieve and expose a video’s embed eligibility so SKTube can handle videos that YouTube will not play in an embedded player.
 - If a channel or video is no longer available, present an appropriate unavailable state rather than storing stale video data.
 - API failures, invalid identifiers, rate limits, and unavailable content must be handled gracefully with user-facing error messages.
 
@@ -201,7 +207,7 @@ A user who has previously created an email/password account and may later choose
 - The dashboard must adapt from multi-column channel cards on larger screens to an appropriate single- or reduced-column layout on smaller screens.
 - Search, add-channel actions, dialogs, cards, and video lists must remain usable on mobile devices.
 - Touch targets must be practical for mobile use.
-- Video links must preserve expected desktop new-tab behavior and mobile YouTube-opening behavior.
+- Embedded playback must remain usable on desktop and mobile, including a visible “Open on YouTube” fallback.
 
 ## 11. Error and Empty States
 
@@ -231,6 +237,7 @@ A user who has previously created an email/password account and may later choose
 - No additional videos: indicate that the end of available results has been reached.
 - Video retrieval failure: show a retry action.
 - Unavailable channel: explain that the channel is no longer accessible on YouTube.
+- Embedded playback unavailable: explain that YouTube does not allow playback in SKTube and provide “Open on YouTube.”
 
 ## 12. MVP Acceptance Criteria
 
@@ -250,7 +257,8 @@ The MVP is complete when:
 - Videos load through infinite scrolling in pages of up to 50.
 - Each displayed video includes thumbnail, title, duration, and published date.
 - Shorts, live streams, and unavailable videos are not displayed.
-- Videos open on YouTube in a new desktop tab or appropriate mobile YouTube behavior.
+- Selecting a video opens a responsive official YouTube embedded player inside SKTube.
+- Videos that cannot play in the embedded player show a clear “Open on YouTube” fallback.
 - MongoDB stores users and saved channel metadata, but not video records.
 - Core flows work on desktop and mobile-sized screens.
 - Empty, loading, validation, duplicate, unavailable, and API-error states are handled clearly.

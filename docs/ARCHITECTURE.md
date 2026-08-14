@@ -21,7 +21,7 @@ The MVP is a responsive Next.js web app where authenticated users save YouTube c
 | Client state        | Zustand                                   | Client-only UI state; never use it as a server-data cache.                                                                 |
 | Server state        | `@tanstack/react-query`                   | Fetching, mutation lifecycle, invalidation, infinite video pagination, loading, and error state.                           |
 | Styling and base UI | Tailwind CSS, shadcn/ui, Lucide icons     | Put reusable UI building blocks in shared component folders.                                                               |
-| YouTube API         | Server-only `fetch` client                | Do not expose the YouTube API key to the browser.                                                                          |
+| YouTube integration | Server-only Data API `fetch` client + official iframe embed | Do not expose the YouTube API key to the browser. Use the native embedded player; do not build custom playback controls. |
 | Testing             | Vitest, React Testing Library, Playwright | Test domain utilities, UI behavior, and core end-to-end flows.                                                             |
 
 ## 3. Architecture Principles
@@ -96,7 +96,9 @@ app/
 ├── (protected)/
 │   ├── layout.js
 │   ├── dashboard/page.js
-│   └── channels/[channelId]/page.js
+│   └── channels/[channelId]/
+│       ├── page.js
+│       └── videos/[videoId]/page.js
 ├── api/
 │   ├── auth/
 │   │   ├── register/route.js
@@ -376,7 +378,7 @@ For a saved channel:
 2. Read its `uploadsPlaylistId`.
 3. Call `playlistItems.list` with `maxResults=50` and the incoming page token. YouTube’s uploads playlist represents the channel’s uploaded videos and is the appropriate newest-first source. [YouTube playlist items documentation](https://developers.google.com/youtube/v3/docs/playlistItems/list)
 4. Fetch details for the returned video IDs with `videos.list`.
-5. Map only fields the product needs: video ID, title, thumbnail, ISO duration, published date, and YouTube watch URL.
+5. Map only fields the product needs: video ID, title, thumbnail, ISO duration, published date, embed eligibility, and YouTube watch URL.
 6. Filter the mapped results using the shared video eligibility utility.
 7. Continue through underlying YouTube pages until 50 eligible videos are collected or no next page token remains.
 8. Return up to 50 eligible videos and an opaque next cursor for `useInfiniteQuery`.
@@ -393,12 +395,19 @@ The shared utility excludes a video when any of these are true:
 
 A video exactly two minutes long is eligible. This is the explicit MVP short-video rule; SKTube does not attempt to infer YouTube’s internal Shorts classification.
 
-### Video links
+### Embedded video playback
 
-Each eligible card links to `https://www.youtube.com/watch?v=<videoId>`.
+Selecting a video navigates to the protected SKTube route `/channels/[channelId]/videos/[videoId]`. The route verifies that the saved channel belongs to the current user and renders a reusable `YoutubePlayer` component.
 
-- Desktop links open in a new tab with safe link attributes.
-- On mobile, the normal browser/OS handling may open the YouTube app when available.
+- Use the official iframe URL: `https://www.youtube-nocookie.com/embed/<videoId>`.
+- Include `playsinline=1`, `rel=0`, and the application `origin` parameter.
+- Preserve the native YouTube controls, branding, fullscreen option, and at least a 16:9 responsive viewport.
+- Do not autoplay by default.
+- Do not place overlays or custom controls over any portion of the player.
+- Do not load or persist video playback progress, history, or analytics in MVP.
+- Include a visible “Open on YouTube” link using `https://www.youtube.com/watch?v=<videoId>`.
+
+`status.embeddable` is mapped from `videos.list`. If it is false, or if YouTube blocks playback for a restriction not detectable through the Data API, display a clear unavailable state and the “Open on YouTube” fallback. The video remains a YouTube-owned resource; SKTube does not proxy, download, or host video media.
 
 ### No video caching
 
@@ -416,6 +425,7 @@ Place reusable components in `components/ui` or `components/shared`, including:
 - Loading indicator/skeleton. The channel video feed uses a responsive one-row `VideoCardSkeleton` shimmer during the initial fetch and infinite-scroll pagination; do not use generic spinners for this feed.
 - Empty-state and error-state components.
 - Channel card and video-card primitives when their display behavior is reused.
+- Responsive `YoutubePlayer` and embedded-playback fallback components.
 
 Feature components compose these blocks rather than reimplementing them.
 
@@ -440,6 +450,7 @@ Use normalized application errors; do not pass raw MongoDB, JWT, or YouTube API 
 | Channel not found                                | Show a clear, retryable preview error.                                        |
 | Duplicate saved channel                          | Explain that the channel already exists in the user’s library.                |
 | YouTube quota/API failure                        | Show a retryable error without exposing the API key or raw upstream response. |
+| Embedded playback blocked or unavailable         | Explain that YouTube does not allow embedded playback and show “Open on YouTube”. |
 | No saved channels/search results/eligible videos | Use a reusable empty state with the appropriate next action.                  |
 
 ## 12. Environment Variables
@@ -474,6 +485,7 @@ Validate server environment variables at application startup through `lib/env.js
 - JWT/session utility behavior.
 - Zod schemas.
 - YouTube response mapping.
+- Embedded-player URL and fallback rendering.
 
 ### Integration tests
 
@@ -482,11 +494,13 @@ Validate server environment variables at application startup through `lib/env.js
 - Google login rejects an unknown email rather than creating a user.
 - Saved-channel duplicate protection and ownership checks.
 - Video endpoint filtering and cursor behavior with mocked YouTube responses.
+- Non-embeddable video behavior.
 
 ### End-to-end tests
 
 - Register/login, add a previewed channel, search it, remove it.
 - Browse an eligible video feed and load another page.
+- Open an eligible video inside SKTube and verify the YouTube fallback is available.
 - Attempt to open protected pages while logged out.
 - Validate mobile-sized dashboard interaction.
 

@@ -57,7 +57,11 @@ export function ChannelVideoFeed({ channel }) {
 
   return (
     <div className="space-y-8">
-      <VideoFeedGrid videos={videos} channelTitle={channel.title} />
+      <VideoFeedGrid
+        videos={videos}
+        channelId={channel.id}
+        channelTitle={channel.title}
+      />
 
       {isFetchingNextPage ? (
         <VideoFeedSkeletonRow label="Loading more videos" />

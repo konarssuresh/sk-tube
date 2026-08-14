@@ -13,6 +13,8 @@ Open `index.html` in a browser to review the interactive MVP design reference.
 - Remove-channel confirmation
 - Channel video feed with infinite-scroll loading state
 - Video-feed empty and upstream-error states
+- Embedded video playback page with “Open on YouTube” action
+- Embedded-playback blocked fallback state
 
 ## Visual direction
 

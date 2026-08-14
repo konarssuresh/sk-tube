@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseVideoCursor } from "@/features/videos/schemas";
+import { parseVideoCursor, parseVideoId } from "@/features/videos/schemas";
 import { AppError } from "@/lib/errors";
 
 describe("video cursor schema", () => {
@@ -16,5 +16,18 @@ describe("video cursor schema", () => {
 
   it("rejects blank cursor strings", () => {
     expect(() => parseVideoCursor("   ")).toThrow(AppError);
+  });
+});
+
+describe("video id schema", () => {
+  it("accepts valid YouTube video IDs", () => {
+    expect(parseVideoId("dQw4w9WgXcQ")).toBe("dQw4w9WgXcQ");
+    expect(parseVideoId("e2e-video-0")).toBe("e2e-video-0");
+  });
+
+  it("rejects invalid video IDs", () => {
+    expect(() => parseVideoId("short")).toThrow(AppError);
+    expect(() => parseVideoId("")).toThrow(AppError);
+    expect(() => parseVideoId("invalid id!")).toThrow(AppError);
   });
 });

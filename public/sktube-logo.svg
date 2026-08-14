@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>SKTube</title>
+  <defs>
+    <linearGradient id="sktube-gradient" x1="8" y1="6" x2="57" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff625c"/>
+      <stop offset="1" stop-color="#e92d3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#sktube-gradient)"/>
+  <path d="M25.25 18.1c-2.32-1.46-5.25.21-5.25 2.95v22.1c0 2.74 2.93 4.41 5.25 2.95l18.06-11.05a3.46 3.46 0 0 0 0-5.9L25.25 18.1Z" fill="#fff"/>
+  <path d="m31.2 23.5 9.05 5.55a1.1 1.1 0 0 1 0 1.9L31.2 36.5V23.5Z" fill="#f1434a"/>
+</svg>
