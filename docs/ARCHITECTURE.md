@@ -400,9 +400,9 @@ A video exactly two minutes long is eligible. This is the explicit MVP short-vid
 Selecting a video navigates to the protected SKTube route `/channels/[channelId]/videos/[videoId]`. The route verifies that the saved channel belongs to the current user and renders a reusable `YoutubePlayer` component.
 
 - Use the official iframe URL: `https://www.youtube-nocookie.com/embed/<videoId>`.
-- Include `playsinline=1`, `rel=0`, and the application `origin` parameter.
+- Include `autoplay=1`, `playsinline=1`, `rel=0`, and the application `origin` parameter.
 - Preserve the native YouTube controls, branding, fullscreen option, and at least a 16:9 responsive viewport.
-- Do not autoplay by default.
+- Autoplay when the user opens a video from the channel feed.
 - Do not place overlays or custom controls over any portion of the player.
 - Do not load or persist video playback progress, history, or analytics in MVP.
 - Include a visible “Open on YouTube” link using `https://www.youtube.com/watch?v=<videoId>`.

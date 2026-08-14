@@ -253,7 +253,7 @@ Display current eligible YouTube uploads and play them through the official embe
 - Build video-feed, video-card, load-more sentinel, shimmer skeleton row, retry, empty, and end-of-results components.
 - Build a reusable responsive `YoutubePlayer` using YouTube’s official privacy-enhanced iframe embed.
 - Navigate a selected video to its protected SKTube playback page instead of opening a new browser tab.
-- Use `playsinline=1`, `rel=0`, and the application origin in the embed URL; do not autoplay or overlay/customize YouTube player controls.
+- Use `autoplay=1`, `playsinline=1`, `rel=0`, and the application origin in the embed URL; do not overlay/customize YouTube player controls.
 - Provide a visible “Open on YouTube” fallback on every playback page.
 - If `status.embeddable` is false or embedded playback fails, show the fallback state instead of a broken player.
 - Keep React Query cache in memory only. Do not persist videos in MongoDB or introduce server-side caching/background sync.

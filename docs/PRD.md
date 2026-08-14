@@ -155,7 +155,7 @@ A user who has previously created an email/password account and may later choose
   - Unavailable, deleted, private, or otherwise inaccessible videos
 - Selecting a video opens an SKTube playback view with the official YouTube embedded player.
 - The player must be responsive, maintain a 16:9 layout, and preserve YouTube’s native controls and branding.
-- Do not autoplay videos by default.
+- Autoplay videos when opened from the channel feed; do not autoplay thumbnails on the grid.
 - Provide an “Open on YouTube” link as a visible fallback and secondary action.
 - If a video is not embeddable or playback is blocked by YouTube, show a clear explanation and the fallback link.
 

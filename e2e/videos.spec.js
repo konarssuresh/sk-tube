@@ -45,6 +45,7 @@ test.describe("channel videos", () => {
     await page.goto(`${channelUrl}/videos/e2e-video-0`);
 
     await expect(page.locator('iframe[src*="youtube-nocookie.com/embed/e2e-video-0"]')).toBeVisible();
+    await expect(page.locator('iframe[src*="autoplay=1"]')).toBeVisible();
     await expect(page.getByRole("link", { name: "Open on YouTube" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Eligible e2e-video-0" })).toBeVisible();
   });
