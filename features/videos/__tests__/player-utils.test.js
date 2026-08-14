@@ -22,9 +22,9 @@ describe("player utils", () => {
 
     expect(url.origin).toBe("https://www.youtube-nocookie.com");
     expect(url.pathname).toBe("/embed/dQw4w9WgXcQ");
+    expect(url.searchParams.get("autoplay")).toBe("1");
     expect(url.searchParams.get("playsinline")).toBe("1");
     expect(url.searchParams.get("rel")).toBe("0");
     expect(url.searchParams.get("origin")).toBe("http://localhost:3000");
-    expect(url.searchParams.has("autoplay")).toBe(false);
   });
 });

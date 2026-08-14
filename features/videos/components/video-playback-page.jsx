@@ -26,13 +26,15 @@ export function VideoPlaybackPage({ channel, video, appOrigin }) {
   const watchUrl = buildYoutubeWatchUrl(video.videoId);
 
   return (
-    <PageContainer className="mx-auto max-w-[900px]">
-      <Link
-        href={`/channels/${channel.id}`}
-        className="mb-6 inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
-      >
-        ← Back to {channel.title} videos
-      </Link>
+    <PageContainer className="mx-auto max-w-[900px] px-0 sm:px-5">
+      <div className="px-5 sm:px-0">
+        <Link
+          href={`/channels/${channel.id}`}
+          className="mb-6 inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
+        >
+          ← Back to {channel.title} videos
+        </Link>
+      </div>
 
       {video.embeddable ? (
         <YoutubePlayer
@@ -40,10 +42,12 @@ export function VideoPlaybackPage({ channel, video, appOrigin }) {
           title={`YouTube video player: ${video.title}`}
         />
       ) : (
-        <EmbeddedPlaybackFallback videoId={video.videoId} />
+        <div className="px-5 sm:px-0">
+          <EmbeddedPlaybackFallback videoId={video.videoId} />
+        </div>
       )}
 
-      <div className="mt-[22px] flex flex-col items-start justify-between gap-[18px] sm:flex-row">
+      <div className="mt-[22px] flex flex-col items-start justify-between gap-[18px] px-5 sm:flex-row sm:px-0">
         <div className="min-w-0">
           <p className="text-xs font-bold tracking-[0.08em] text-muted uppercase">
             {channel.title}

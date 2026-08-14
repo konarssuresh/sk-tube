@@ -1,6 +1,6 @@
 export function YoutubePlayer({ src, title }) {
   return (
-    <div className="relative aspect-video overflow-hidden rounded-[15px] border border-[#353542] bg-[#08080c] shadow-[var(--shadow)]">
+    <div className="relative aspect-video overflow-hidden rounded-none border-x-0 border-[#353542] bg-[#08080c] shadow-[var(--shadow)] sm:rounded-[15px] sm:border">
       <iframe
         src={src}
         title={title}
