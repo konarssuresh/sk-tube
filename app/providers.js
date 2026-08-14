@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import { NavigationProgress } from "@/components/shared/navigation-progress";
+import { NavigationProgressProvider } from "@/components/shared/navigation-progress-provider";
+
 function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -18,6 +21,11 @@ export default function Providers({ children }) {
   const [queryClient] = useState(createQueryClient);
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <NavigationProgressProvider>
+        <NavigationProgress />
+        {children}
+      </NavigationProgressProvider>
+    </QueryClientProvider>
   );
 }

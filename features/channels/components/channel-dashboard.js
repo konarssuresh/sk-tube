@@ -5,8 +5,8 @@ import { Library, Plus, SearchX } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
-import { LoadingState } from "@/components/shared/loading-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { ChannelGridSkeleton } from "@/features/channels/components/channel-grid-skeleton";
 import { Button } from "@/components/ui/button";
 import { ChannelGrid } from "@/features/channels/components/channel-grid";
 import { ChannelSearchInput } from "@/features/channels/components/channel-search-input";
@@ -47,7 +47,7 @@ export function ChannelDashboard({ userName }) {
 
   function renderContent() {
     if (isLoading) {
-      return <LoadingState message="Loading your channels…" className="min-h-[340px]" />;
+      return <ChannelGridSkeleton className="min-h-[340px]" />;
     }
 
     if (isError) {
