@@ -4,10 +4,7 @@ import { PageContainer } from "@/components/shared/page-container";
 import { Button } from "@/components/ui/button";
 import { EmbeddedPlaybackFallback } from "@/features/videos/components/embedded-playback-fallback";
 import { YoutubePlayer } from "@/features/videos/components/youtube-player";
-import {
-  buildYoutubeEmbedUrl,
-  buildYoutubeWatchUrl,
-} from "@/features/videos/player-utils";
+import { buildYoutubeWatchUrl } from "@/features/videos/player-utils";
 import {
   formatPublishedDate,
   formatVideoDuration,
@@ -19,10 +16,6 @@ export function VideoPlaybackPage({ channel, video, appOrigin }) {
     parseIso8601Duration(video.duration),
   );
   const publishedLabel = formatPublishedDate(video.publishedAt);
-  const embedUrl = buildYoutubeEmbedUrl({
-    videoId: video.videoId,
-    appOrigin,
-  });
   const watchUrl = buildYoutubeWatchUrl(video.videoId);
 
   return (
@@ -38,7 +31,8 @@ export function VideoPlaybackPage({ channel, video, appOrigin }) {
 
       {video.embeddable ? (
         <YoutubePlayer
-          src={embedUrl}
+          videoId={video.videoId}
+          appOrigin={appOrigin}
           title={`YouTube video player: ${video.title}`}
         />
       ) : (
