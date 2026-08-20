@@ -40,6 +40,7 @@ A user who has previously created an email/password account and may later choose
 ## 5. Core User Stories
 
 - As a visitor, I can register with email and password.
+- As a visitor, I can create an account with Google using "Continue with Google."
 - As a user, I can log in and log out securely.
 - As an existing email/password user, I can sign in with Google using the same email without creating a duplicate account.
 - As a user, I can add a YouTube channel using a supported handle or channel URL.
@@ -65,8 +66,8 @@ A user who has previously created an email/password account and may later choose
 
 1. Visitor selects “Continue with Google.”
 2. Visitor completes Google authentication.
-3. If a user account already exists with the same verified email address, Google login is linked to that account.
-4. Otherwise, the application creates or signs into the appropriate account according to the authentication implementation.
+3. If a user account already exists with the same email address, Google sign-in links to that account.
+4. Otherwise, the application creates a new account using the Google profile name and email.
 5. The user receives the same cookie-based application session.
 
 ### Add a channel
@@ -106,8 +107,8 @@ A user who has previously created an email/password account and may later choose
 - Support registration and login using email and password.
 - Support logout.
 - Use secure HTTP-only cookies for the Next.js application session.
-- Support Google sign-in.
-- For MVP, Google sign-in using the same email as an existing email/password account must link to that existing account rather than create a duplicate user.
+- Support Google sign-in and Google-based account creation.
+- Google sign-in using the same email as an existing email/password account must link to that existing account rather than create a duplicate user.
 - A user must only be able to access and modify their own saved channels.
 
 ### Dashboard
@@ -245,6 +246,7 @@ The MVP is complete when:
 
 - Users can register, log in, and log out with email and password.
 - Authenticated sessions use secure HTTP-only cookies.
+- Users can create an account with Google.
 - Users can sign in with Google, and Google sign-in links to an existing email/password account when both use the same email.
 - Unauthenticated users cannot access another user’s dashboard or saved channels.
 - Users can add channels using only `@handle` input or `/channel/` URLs.

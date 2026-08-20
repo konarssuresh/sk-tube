@@ -19,7 +19,7 @@ const mockSetGoogleOAuthStateCookie = vi.fn();
 const mockVerifyGoogleOAuthStateCookie = vi.fn();
 const mockVerifyGoogleAuthCode = vi.fn();
 const mockSetSessionCookie = vi.fn();
-const mockLinkGoogleAccount = vi.fn();
+const mockAuthenticateWithGoogle = vi.fn();
 
 vi.mock("@/lib/google-auth", async (importOriginal) => {
   const actual = await importOriginal();
@@ -40,8 +40,8 @@ vi.mock("@/lib/auth/session", () => ({
   setSessionCookie: (...args) => mockSetSessionCookie(...args),
 }));
 
-vi.mock("@/features/auth/services/link-google-account", () => ({
-  linkGoogleAccount: (...args) => mockLinkGoogleAccount(...args),
+vi.mock("@/features/auth/services/authenticate-with-google", () => ({
+  authenticateWithGoogle: (...args) => mockAuthenticateWithGoogle(...args),
 }));
 
 describe("google auth routes", () => {
@@ -54,7 +54,7 @@ describe("google auth routes", () => {
     mockVerifyGoogleOAuthStateCookie.mockReset();
     mockVerifyGoogleAuthCode.mockReset();
     mockSetSessionCookie.mockReset();
-    mockLinkGoogleAccount.mockReset();
+    mockAuthenticateWithGoogle.mockReset();
   });
 
   afterEach(() => {
@@ -78,16 +78,16 @@ describe("google auth routes", () => {
     expect(mockSetGoogleOAuthStateCookie).toHaveBeenCalledWith("oauth-state-123");
   });
 
-  it("completes callback by linking the account and setting the session cookie", async () => {
+  it("completes callback by authenticating the user and setting the session cookie", async () => {
     const { GET } = await import("@/app/api/auth/google/callback/route");
 
     mockVerifyGoogleOAuthStateCookie.mockResolvedValue(true);
     mockVerifyGoogleAuthCode.mockResolvedValue({
       googleId: "google-subject-123",
       email: "user@example.com",
-      emailVerified: true,
+      name: "Suresh",
     });
-    mockLinkGoogleAccount.mockResolvedValue({
+    mockAuthenticateWithGoogle.mockResolvedValue({
       _id: "507f1f77bcf86cd799439011",
     });
 
@@ -98,6 +98,11 @@ describe("google auth routes", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard");
+    expect(mockAuthenticateWithGoogle).toHaveBeenCalledWith({
+      googleId: "google-subject-123",
+      email: "user@example.com",
+      name: "Suresh",
+    });
     expect(mockSetSessionCookie).toHaveBeenCalledWith("507f1f77bcf86cd799439011");
   });
 
@@ -116,17 +121,20 @@ describe("google auth routes", () => {
     );
   });
 
-  it("redirects to login when no password account exists for the Google email", async () => {
+  it("redirects to login when Google authentication fails", async () => {
     const { GET } = await import("@/app/api/auth/google/callback/route");
 
     mockVerifyGoogleOAuthStateCookie.mockResolvedValue(true);
     mockVerifyGoogleAuthCode.mockResolvedValue({
       googleId: "google-subject-123",
-      email: "missing@example.com",
-      emailVerified: true,
+      email: "user@example.com",
+      name: "Suresh",
     });
-    mockLinkGoogleAccount.mockRejectedValue(
-      new AppError(AppErrorCode.UNAUTHORIZED, "Create an email/password account first, then sign in with Google using the same email."),
+    mockAuthenticateWithGoogle.mockRejectedValue(
+      new AppError(
+        AppErrorCode.DUPLICATE,
+        "This Google account cannot be linked. Try another sign-in method.",
+      ),
     );
 
     const request = new NextRequest(
@@ -135,7 +143,7 @@ describe("google auth routes", () => {
     const response = await GET(request);
 
     expect(response.headers.get("location")).toBe(
-      `http://localhost:3000/login?error=${GoogleAuthErrorCode.NO_ACCOUNT}`,
+      `http://localhost:3000/login?error=${GoogleAuthErrorCode.GOOGLE_CONFLICT}`,
     );
   });
 });

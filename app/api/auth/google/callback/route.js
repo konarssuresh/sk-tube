@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { linkGoogleAccount } from "@/features/auth/services/link-google-account";
+import { authenticateWithGoogle } from "@/features/auth/services/authenticate-with-google";
 import {
   GoogleAuthErrorCode,
   mapErrorToGoogleAuthCode,
@@ -35,7 +35,7 @@ export async function GET(request) {
 
   try {
     const profile = await verifyGoogleAuthCode(code);
-    const user = await linkGoogleAccount(profile);
+    const user = await authenticateWithGoogle(profile);
 
     await setSessionCookie(String(user._id));
 

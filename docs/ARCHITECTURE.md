@@ -15,7 +15,7 @@ The MVP is a responsive Next.js web app where authenticated users save YouTube c
 | Authentication      | Custom JWT session cookie                 | Do not use Auth.js, Better Auth, or another auth framework.                                                                |
 | Passwords           | `bcrypt`                                  | Hash before storage and compare on login. Never return a password hash.                                                    |
 | JWT                 | `jose`                                    | Sign and verify the JWT on the server. The JWT contains only the user ID and standard expiry claims.                       |
-| Google sign-in      | `google-auth-library`                     | Google may link only to an existing email/password account with the same verified email. It must not create a user in MVP. |
+| Google sign-in      | `google-auth-library`                     | Google sign-in creates new users or links to an existing account with the same email. |
 | Validation          | Zod                                       | Validate at every server boundary.                                                                                         |
 | Forms               | React Hook Form + `@hookform/resolvers`   | Use Zod schemas with forms.                                                                                                |
 | Client state        | Zustand                                   | Client-only UI state; never use it as a server-data cache.                                                                 |
@@ -176,12 +176,15 @@ proxy.js
 
 ### User model
 
-The User model is the source of truth for an SKTube identity. Since Google-only account creation is not allowed in MVP, every user has an email/password credential.
+The User model is the source of truth for an SKTube identity. A user may authenticate with email/password, Google, or both.
 
 Required fields:
 
 - `name`
 - `email`: normalized to lowercase, trimmed, unique, and indexed
+
+Optional fields:
+
 - `passwordHash`: bcrypt hash; never selected or returned by default unless needed to authenticate
 - `googleId`: optional stable Google subject identifier, unique when present
 - `googleLinkedAt`: optional timestamp
@@ -189,8 +192,9 @@ Required fields:
 
 Rules:
 
+- Every user must have at least one of `passwordHash` or `googleId`.
 - Never store a plaintext password.
-- Never use the email address as the Google identity. Use Google’s stable subject ID after its verified email has matched the existing user.
+- Never use the email address as the Google identity. Use Google’s stable subject ID.
 - Do not allow a Google ID already linked to one user to be linked to another.
 
 ### SavedChannel model
@@ -265,20 +269,20 @@ Login:
 
 Logout clears `sktube_session` and redirects or returns success.
 
-### Google login and linking
+### Google sign-in
 
-Google is an alternate sign-in method for an existing password account only.
+Google is a primary sign-in and registration method alongside email/password.
 
 1. Complete the Google OAuth flow server-side.
 2. Verify Google’s identity token using `google-auth-library`.
-3. Require a verified Google email and a Google subject ID.
-4. Find the User by normalized verified email.
-5. If no user exists, reject the login with a message explaining that the user must register with email/password first.
-6. If `googleId` is absent, link the verified Google subject ID to that user.
-7. If `googleId` exists, require it to match the verified Google subject ID.
+3. Require a Google subject ID and email from the token profile.
+4. Find the User by normalized email, or create a new user when none exists.
+5. If a user exists and `googleId` is absent, link the Google subject ID to that user.
+6. If `googleId` exists, require it to match the Google subject ID.
+7. Reject conflicting Google subject IDs across users.
 8. Create the same `sktube_session` cookie used by email/password login.
 
-Do not automatically create a user from Google. Do not link accounts based on an unverified email. Do not store Google access or refresh tokens because the application uses its own YouTube API key rather than acting on the user’s YouTube account.
+Do not store Google access or refresh tokens because the application uses its own YouTube API key rather than acting on the user’s YouTube account. Enforcing Google’s `email_verified` flag is deferred.
 
 ### Protected routes and data access
 
@@ -342,7 +346,7 @@ Use Route Handlers for authentication and data accessed by client-side React Que
 - `POST /api/auth/login`: validates credentials and sets `sktube_session`.
 - `POST /api/auth/logout`: clears `sktube_session`.
 - `GET /api/auth/google`: creates the Google OAuth authorization redirect.
-- `GET /api/auth/google/callback`: verifies the Google identity, links it only to a matching existing password account, and sets `sktube_session`.
+- `GET /api/auth/google/callback`: verifies the Google identity, finds or creates the user, and sets `sktube_session`.
 - `GET /api/channels`: the authenticated user’s saved channels, ordered newest first.
 - `GET /api/channels/[channelId]/videos?cursor=`: current eligible YouTube videos for one saved channel.
 
@@ -445,7 +449,7 @@ Use normalized application errors; do not pass raw MongoDB, JWT, or YouTube API 
 | Missing/invalid/expired session                  | Redirect to login for pages; return 401 for API requests.                     |
 | Missing user for a valid token                   | Treat as unauthorized and clear the session at the next auth response.        |
 | Invalid credentials                              | Generic login failure message.                                                |
-| Google email has no password account             | Explain that email/password registration is required before Google sign-in.   |
+| Google-only user tries password login              | Explain that the account uses Google sign-in.                                 |
 | Unsupported channel input                        | Explain the accepted `@handle` and `/channel/` URL formats.                   |
 | Channel not found                                | Show a clear, retryable preview error.                                        |
 | Duplicate saved channel                          | Explain that the channel already exists in the user’s library.                |
@@ -490,8 +494,8 @@ Validate server environment variables at application startup through `lib/env.js
 ### Integration tests
 
 - Registration, duplicate-email rejection, login, logout, and protected-action rejection.
-- Google linking succeeds only for a matching existing verified email/password user.
-- Google login rejects an unknown email rather than creating a user.
+- Google sign-in creates new users and links to existing accounts with the same email.
+- Google login rejects conflicting Google subject IDs.
 - Saved-channel duplicate protection and ownership checks.
 - Video endpoint filtering and cursor behavior with mocked YouTube responses.
 - Non-embeddable video behavior.
@@ -511,6 +515,5 @@ Do not add these without changing the PRD and this architecture:
 - Video persistence, history, favorites, watch later, playlists, or notifications.
 - Background refresh or scheduled synchronization.
 - Redis or server-side caching.
-- Google-only account registration.
 - Arbitrary YouTube URL support.
 - Custom ordering, folders, tags, social features, or sharing.

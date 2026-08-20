@@ -26,6 +26,14 @@ test.describe("authentication", () => {
     await expect(page.getByRole("heading", { name: /Welcome,/ })).toBeVisible();
   });
 
+  test("shows Continue with Google on the register page", async ({ page }) => {
+    await page.goto("/register");
+
+    await expect(
+      page.getByRole("link", { name: "Continue with Google" }),
+    ).toBeVisible();
+  });
+
   test("redirects unauthenticated visitors away from protected pages", async ({
     page,
   }) => {

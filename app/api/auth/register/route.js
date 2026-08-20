@@ -15,11 +15,15 @@ export async function POST(request) {
 
     await connectDB();
 
-    const existingUser = await User.findOne({ email });
-
-    console.log("existingUser", existingUser);
+    const existingUser = await User.findOne({ email }).select("+passwordHash");
 
     if (existingUser) {
+      if (existingUser.googleId && !existingUser.passwordHash) {
+        throw duplicateKeyAppError(
+          "An account with this email already exists. Sign in with Google instead.",
+        );
+      }
+
       throw duplicateKeyAppError("An account with this email already exists.");
     }
 
@@ -31,8 +35,6 @@ export async function POST(request) {
       user = await User.create({ name, email, passwordHash });
     } catch (error) {
       if (isMongoDuplicateKeyError(error)) {
-        console.log("error is mongo duplicate key error");
-        console.log(error);
         throw duplicateKeyAppError(
           "An account with this email already exists.",
         );

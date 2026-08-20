@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { GoogleLoginButton } from "@/features/auth/components/google-login-button";
 import { useRegisterMutation } from "@/features/auth/hooks/use-register-mutation";
 
 export function RegisterForm() {
@@ -86,6 +87,8 @@ export function RegisterForm() {
           {isPending ? "Creating account..." : "Create account →"}
         </Button>
       </div>
+
+      <GoogleLoginButton />
 
       <p className="mt-[25px] text-center text-sm text-muted">
         Already have an account?{" "}

@@ -9,6 +9,7 @@ import { AppError, AppErrorCode } from "@/lib/errors";
 import User, { toSafeUser } from "@/models/User";
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
+const GOOGLE_SIGN_IN_MESSAGE = "This account uses Google sign-in.";
 
 export async function POST(request) {
   return handleRoute(async () => {
@@ -24,6 +25,10 @@ export async function POST(request) {
         AppErrorCode.UNAUTHORIZED,
         INVALID_CREDENTIALS_MESSAGE,
       );
+    }
+
+    if (!user.passwordHash) {
+      throw new AppError(AppErrorCode.UNAUTHORIZED, GOOGLE_SIGN_IN_MESSAGE);
     }
 
     const passwordMatches = await bcrypt.compare(password, user.passwordHash);

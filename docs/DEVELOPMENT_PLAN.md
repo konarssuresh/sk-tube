@@ -21,6 +21,7 @@ Implement phases in order. A phase is complete only when its completion criteria
 | 5 | Add-channel preview and confirmation | Phases 1, 2, 4 |
 | 6 | Current YouTube video feed, embedded playback, and infinite scroll | Phases 1, 2, 4 |
 | 7 | Responsive polish, error states, and test coverage | Phases 0–6 |
+| 8 | Google signup and unified Continue with Google | Phase 3 |
 
 ## Phase 0 — Foundation and Shared UI
 
@@ -312,13 +313,40 @@ Verify the full MVP against the PRD and prepare it for a safe first deployment.
 
 **Status:** Phase 7 complete. Lint, Vitest, Playwright, and production build pass; PRD §12 is covered by the automated suite plus the production checklist in `README.md`.
 
+## Phase 8 — Google Signup
+
+### Goal
+
+Allow new users to create an account via Google while preserving linking for existing email/password users.
+
+### Tasks
+
+- Make `passwordHash` optional on the User model; require at least one of `passwordHash` or `googleId`.
+- Extend `verifyGoogleAuthCode` to return `given_name` as `name` (fallback to `name`); do not enforce `email_verified`.
+- Refactor `linkGoogleAccount` into `authenticateWithGoogle` with find-or-create behavior.
+- Update the Google callback to use the new service.
+- Guard password login when the user has no `passwordHash`.
+- Improve register duplicate-email messaging for Google-only accounts.
+- Remove `NO_ACCOUNT` and `EMAIL_UNVERIFIED` error codes.
+- Add unified "Continue with Google" to the register page.
+- Update unit, integration, and E2E tests.
+
+### Completion Criteria
+
+- A new Google user can create an account and reach the dashboard.
+- An existing email/password user can still link and sign in with Google.
+- A returning Google user signs in without re-linking.
+- Google-only users receive a clear message when attempting password login.
+- Conflicting Google subject IDs are rejected.
+- Lint, build, and tests pass.
+
 ## 3. Out of Scope for This Plan
 
 Do not implement these during MVP development:
 
 - Video storage, history, favorites, watch later, playlists, or notifications.
 - Background jobs, scheduled sync, Redis, or persistent video caching.
-- Google-only registration or additional OAuth providers.
+- Additional OAuth providers.
 - Arbitrary YouTube URL support.
 - Channel folders, tags, custom sorting, sharing, or social features.
 

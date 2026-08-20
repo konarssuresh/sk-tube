@@ -106,7 +106,9 @@ describe("auth route handlers", () => {
   it("registers a user, sets the session cookie, and returns a safe user", async () => {
     const { POST } = await import("@/app/api/auth/register/route");
 
-    mockFindOne.mockResolvedValue(null);
+    mockFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue(null),
+    });
     mockHash.mockResolvedValue("hashed-password");
     mockCreate.mockResolvedValue({
       _id: "507f1f77bcf86cd799439011",
@@ -151,9 +153,12 @@ describe("auth route handlers", () => {
   it("rejects duplicate email registration", async () => {
     const { POST } = await import("@/app/api/auth/register/route");
 
-    mockFindOne.mockResolvedValue({
-      _id: "507f1f77bcf86cd799439011",
-      email: "user@example.com",
+    mockFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: "507f1f77bcf86cd799439011",
+        email: "user@example.com",
+        passwordHash: "hashed-password",
+      }),
     });
 
     const response = await POST(
@@ -168,6 +173,32 @@ describe("auth route handlers", () => {
     expect(response.status).toBe(409);
     expect(payload.code).toBe(AppErrorCode.DUPLICATE);
     expect(payload.message).toContain("already exists");
+  });
+
+  it("rejects duplicate email registration for Google-only accounts with guidance", async () => {
+    const { POST } = await import("@/app/api/auth/register/route");
+
+    mockFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: "507f1f77bcf86cd799439011",
+        email: "user@example.com",
+        googleId: "google-subject-123",
+        passwordHash: null,
+      }),
+    });
+
+    const response = await POST(
+      createRequest({
+        name: "Suresh Konar",
+        email: "user@example.com",
+        password: "password123",
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(payload.code).toBe(AppErrorCode.DUPLICATE);
+    expect(payload.message).toContain("Sign in with Google instead");
   });
 
   it("rejects invalid registration input", async () => {
@@ -234,6 +265,31 @@ describe("auth route handlers", () => {
 
     expect(response.status).toBe(401);
     expect(payload.message).toBe("Invalid email or password.");
+  });
+
+  it("returns a Google sign-in message for Google-only accounts", async () => {
+    const { POST } = await import("@/app/api/auth/login/route");
+
+    mockFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: "507f1f77bcf86cd799439011",
+        email: "user@example.com",
+        googleId: "google-subject-123",
+        passwordHash: null,
+      }),
+    });
+
+    const response = await POST(
+      createRequest({
+        email: "user@example.com",
+        password: "password123",
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(payload.message).toBe("This account uses Google sign-in.");
+    expect(mockCompare).not.toHaveBeenCalled();
   });
 
   it("returns a generic error for incorrect passwords", async () => {

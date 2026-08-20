@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: true,
+      required: false,
       select: false,
     },
     googleId: {
@@ -34,6 +34,15 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+userSchema.pre("validate", function validateAuthMethod() {
+  if (!this.passwordHash && !this.googleId) {
+    this.invalidate(
+      "passwordHash",
+      "User must have a password or linked Google account.",
+    );
+  }
+});
 
 export function toSafeUser(user) {
   if (!user) {

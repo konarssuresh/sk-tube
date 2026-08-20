@@ -32,8 +32,7 @@ export default function RegisterPage() {
         Start with the channels you love.
       </h1>
       <p className="mb-[31px] leading-relaxed text-muted">
-        Create an account first. You can link Google later using the same email
-        address.
+        Create an account with email and password, or continue with Google.
       </p>
       <RegisterForm />
     </AuthLayout>
