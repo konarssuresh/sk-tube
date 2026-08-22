@@ -95,6 +95,7 @@ app/
 │   └── register/page.js
 ├── (protected)/
 │   ├── layout.js
+│   ├── home/page.js
 │   ├── dashboard/page.js
 │   ├── channels/[channelId]/
 │       ├── page.js
@@ -114,6 +115,9 @@ app/
 │   ├── channels/
 │       ├── route.js
 │       └── [channelId]/videos/route.js
+│   ├── feed/
+│       ├── videos/route.js
+│       └── visit/route.js
 │   └── search/
 │       ├── videos/route.js
 │       └── channels/route.js
@@ -152,6 +156,13 @@ features/
     ├── hooks/
     ├── query-keys.js
     └── utils.js
+├── feed/
+    ├── __tests__/
+    ├── api.js
+    ├── components/
+    ├── hooks/
+    ├── query-keys.js
+    └── schemas.js
 └── discovery/
     ├── __tests__/
     ├── api.js
@@ -202,6 +213,7 @@ Optional fields:
 - `passwordHash`: bcrypt hash; never selected or returned by default unless needed to authenticate
 - `googleId`: optional stable Google subject identifier, unique when present
 - `googleLinkedAt`: optional timestamp
+- `feedLastVisitedAt`: optional timestamp of the user’s previous Home feed visit; used only for “new since last visit” markers
 - Mongoose `createdAt` and `updatedAt`
 
 Rules:
@@ -304,8 +316,8 @@ Do not store Google access or refresh tokens because the application uses its ow
 
 - Reads `sktube_session`.
 - Verifies the JWT.
-- Redirects unauthenticated users away from protected pages such as `/dashboard` and `/channels/*`.
-- Redirects authenticated users away from login/register pages.
+- Redirects unauthenticated users away from protected pages such as `/home`, `/dashboard`, `/channels/*`, and `/search/*`.
+- Redirects authenticated users away from login/register pages to `/home`.
 
 `requireCurrentUser()`:
 
@@ -326,6 +338,7 @@ Install one Query Client provider at the application root. Define query keys in 
 channels.all
 channels.detail(channelId)
 videos.byChannel(channelId)
+feed.videos(filters)
 discovery.videos(query)
 discovery.channels(query)
 ```
@@ -339,7 +352,7 @@ Rules:
 - Query keys live in `features/<feature>/query-keys.js`.
 - Use `useQuery` for saved-channel reads.
 - Use `useMutation` for Server Action calls and Route Handler mutations, then invalidate the affected query keys.
-- Use `useInfiniteQuery` for paginated video lists only: the saved-channel video feed and video-search results.
+- Use `useInfiniteQuery` for paginated video lists: the saved-channel video feed, video-search results, and the unified Home feed.
 - React Hook Form owns local form field state only; mutation lifecycle (`isPending`, `error`, `onSuccess`) comes from React Query.
 - Do not duplicate query results into Zustand.
 - Keep fetch functions and query hooks inside the feature that owns them.
@@ -365,6 +378,8 @@ Use Route Handlers for authentication and data accessed by client-side React Que
 - `GET /api/auth/google/callback`: verifies the Google identity, finds or creates the user, and sets `sktube_session`.
 - `GET /api/channels`: the authenticated user’s saved channels, ordered newest first.
 - `GET /api/channels/[channelId]/videos?cursor=`: current eligible YouTube videos for one saved channel.
+- `GET /api/feed/videos?cursor=&channelIds=&publishedAfter=&minDurationSeconds=&maxDurationSeconds=`: authenticated merged Home feed across the user’s saved channels.
+- `PATCH /api/feed/visit`: authenticated update of the user’s `feedLastVisitedAt` timestamp when leaving Home.
 - `GET /api/search/videos?q=&cursor=`: authenticated, paginated public-video search.
 - `GET /api/search/channels?q=&cursor=`: authenticated, paginated public-channel search.
 
@@ -406,6 +421,24 @@ For a saved channel:
 8. Return up to 50 eligible videos and an opaque next cursor for `useInfiniteQuery`.
 
 The cursor represents only the next position in the saved channel’s uploads playlist. It does not grant access to another user’s channel because ownership is always checked before it is used.
+
+### Unified Home feed
+
+For the authenticated user’s Home feed:
+
+1. Load the user’s saved channels, optionally narrowed by validated `channelIds` query parameters.
+2. Decode the opaque cursor into per-channel uploads-playlist pagination state for the selected channels.
+3. Fetch the next playlist page from each non-exhausted selected channel in parallel.
+4. Retrieve video details in batches and map only the safe SKTube video fields, including channel identity needed for playback routing.
+5. Apply the shared eligibility filter, then optional `publishedAfter`, `minDurationSeconds`, and `maxDurationSeconds` filters.
+6. Merge eligible videos, sort by `publishedAt` descending, and return up to 50 results plus the next cursor.
+7. Continue through underlying YouTube pages until the page is filled or every selected channel is exhausted.
+
+Home-feed cursors must not grant access to another user’s channels because saved-channel ownership is verified before any cursor state is used. Do not persist feed pages, merged results, or filter selections in MongoDB.
+
+`feedLastVisitedAt` on the User model is the only Home-feed persistence allowed in v1.2. Update it when the user leaves Home, using the visit-start timestamp recorded on page entry. Videos with `publishedAt` strictly after that stored timestamp show a “New” marker; when unset, show no new markers.
+
+Feed playback routes through the existing saved-channel video page for the video’s owning channel.
 
 ### Discovery search
 

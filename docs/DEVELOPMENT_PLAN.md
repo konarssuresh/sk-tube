@@ -22,6 +22,8 @@ Implement phases in order. A phase is complete only when its completion criteria
 | 6 | Current YouTube video feed, embedded playback, and infinite scroll | Phases 1, 2, 4 |
 | 7 | Responsive polish, error states, and test coverage | Phases 0–6 |
 | 8 | Google signup and unified Continue with Google | Phase 3 |
+| 9 | Search & Discovery (video and channel search) | Phases 1–8 |
+| 10 | Unified Home Feed with filters and new-since-last-visit | Phases 1–9 |
 
 ## Phase 0 — Foundation and Shared UI
 
@@ -377,6 +379,56 @@ Let authenticated users discover public YouTube videos and channels without auto
 - Channel search results appear in descending video-count order, with relevance as the tiebreaker.
 - Users can add a discovered channel once, with correct already-saved feedback and no duplicate records.
 - Search data is never persisted in MongoDB, and API keys/raw YouTube responses never reach the browser.
+
+**Status:** Phase 9 complete.
+
+## Phase 10 — Unified Home Feed
+
+### Goal
+
+Give authenticated users one chronological Home feed of latest eligible uploads across all saved channels, with channel/date/duration filters and a “new since last visit” marker, without persisting video records.
+
+### Tasks
+
+- Add `feedLastVisitedAt` to the User model as an optional Date field; expose it only through server-side user reads needed for feed behavior.
+- Add protected `/home` route and `features/feed/` with schemas, API functions, query keys, hooks, and focused components; reuse `VideoCard`, `VideoFeedGrid`, `VideoFeedSentinel`, `VideoFeedSkeletonRow`, loading, empty, and error primitives.
+- Update post-login redirects and `proxy.js` protection so authenticated users land on `/home`; keep `/dashboard` for channel-library management.
+- Add Home navigation from protected pages alongside Dashboard and Discover.
+- Add `GET /api/feed/videos` with authenticated access and query parameters:
+  - `cursor` — opaque pagination cursor;
+  - `channelIds` — optional comma-separated saved-channel IDs, validated against the current user’s library;
+  - `publishedAfter` — optional ISO date boundary for preset date filters;
+  - `minDurationSeconds` and `maxDurationSeconds` — optional duration bounds for preset duration filters.
+- In the Route Handler:
+  - load the current user’s saved channels, narrowed by `channelIds` when provided;
+  - decode the cursor into per-channel uploads-playlist pagination state;
+  - fetch playlist pages from the selected channels in parallel;
+  - retrieve matching video details in batches;
+  - apply the shared eligibility filter, then date and duration filters;
+  - merge eligible videos, sort by `publishedAt` descending, and return up to 50 mapped videos plus the next cursor;
+  - continue through underlying YouTube pages until the page is filled or all selected channels are exhausted.
+- Use `useInfiniteQuery` for the Home feed; changing filters resets the query key and pagination.
+- Build filter UI:
+  - multi-select saved-channel filter with an “All channels” default;
+  - published-date presets: All time, Today, Past week, Past month, Past 3 months;
+  - duration presets: Any, Under 10 minutes, 10–30 minutes, Over 30 minutes.
+- Show a “New” marker on videos with `publishedAt` strictly after the user’s `feedLastVisitedAt`; when unset, show no new markers.
+- Add `PATCH /api/feed/visit` (or an equivalent authenticated mutation) that sets `feedLastVisitedAt` to the visit-start timestamp when the user leaves Home.
+- Record visit start on Home mount; call the visit mutation on page unmount or when navigation away begins.
+- Route feed playback through the existing `/channels/[channelId]/videos/[videoId]` page and ownership checks.
+- Add unit tests for feed cursor encoding/decoding, filter validation, and merge-sort behavior; add integration tests for authentication, ownership-safe channel filtering, eligibility/date/duration filtering, and visit-timestamp updates; add end-to-end coverage for Home landing, filters, infinite scroll, new markers, and playback.
+
+### Completion Criteria
+
+- Authenticated users land on `/home` after login and can open a merged feed of eligible uploads from all saved channels, newest first.
+- Channel, published-date, and duration filters work server-side and reset pagination when changed.
+- Infinite scrolling loads additional merged pages through an opaque cursor.
+- Videos published after the previous Home visit show a “New” marker; first-time visitors see no blanket new markers.
+- Leaving Home updates `feedLastVisitedAt` without persisting video data.
+- Feed videos play through the existing saved-channel embedded-player route.
+- Empty-library, no-results, loading, retry, and end-of-results states are handled clearly.
+- No video records, feed pages, or filter selections are stored in MongoDB except `feedLastVisitedAt`.
+- Lint, build, and tests pass.
 
 ## 3. Out of Scope for This Plan
 

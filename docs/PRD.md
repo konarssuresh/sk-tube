@@ -267,9 +267,9 @@ The MVP is complete when:
 
 ## 13. Future Scope
 
-### v1.1 — Search & Discovery
+### v1.1 — Search & Discovery (complete)
 
-SKTube will add a protected Discover area with two separate pages. Search results are fetched directly from YouTube and are never stored automatically.
+SKTube adds a protected Discover area with two separate pages. Search results are fetched directly from YouTube and are never stored automatically.
 
 #### Video Search
 
@@ -296,14 +296,65 @@ SKTube will add a protected Discover area with two separate pages. Search result
 - Add a Discover navigation destination with separate Video Search and Channel Search views.
 - On small screens, both views must remain easy to switch between and results must retain usable touch targets.
 
+### v1.2 — Unified Home Feed
+
+SKTube adds a protected Home feed that aggregates the latest eligible uploads across every saved channel into one chronological view. Video data is still fetched live from YouTube and is not stored as application video records.
+
+#### Home feed
+
+- Add a protected `/home` route as the primary post-login destination for authenticated users.
+- Show eligible uploads from all of the user’s saved channels in one feed, ordered by published date with the newest videos first.
+- Reuse the established eligible-video rules, video-card layout, shimmer skeleton row, infinite scrolling, and embedded playback experience used on channel pages.
+- Selecting a feed video opens the existing saved-channel playback route for that video’s channel.
+- If the user has no saved channels, show an empty state with paths to add a channel or open Discover.
+
+#### Filters
+
+- **Channel:** multi-select filter limited to the user’s saved channels; default is all saved channels.
+- **Published date:** preset ranges — All time, Today, Past week, Past month, Past 3 months. Filters apply server-side against YouTube published timestamps.
+- **Duration:** preset ranges — Any, Under 10 minutes, 10–30 minutes, Over 30 minutes. Filters apply server-side using parsed ISO 8601 duration after eligibility filtering.
+- Changing any filter resets pagination and fetches a fresh first page.
+- Filters must remain usable on mobile, including touch-friendly controls.
+
+#### New since last visit
+
+- Store a per-user `feedLastVisitedAt` timestamp in MongoDB.
+- On the Home feed, show a visible “New” marker on videos whose published date is strictly after `feedLastVisitedAt`.
+- When `feedLastVisitedAt` is unset (first visit to Home), do not mark every video as new.
+- Update `feedLastVisitedAt` when the user leaves the Home feed page, using the timestamp recorded when that visit began.
+
+#### Navigation
+
+- Redirect authenticated users from `/`, `/login`, and `/register` to `/home` instead of `/dashboard`.
+- Keep `/dashboard` as the channel-library management view.
+- Add a Home navigation entry from protected pages alongside existing Dashboard and Discover destinations.
+
+#### Data and API constraints
+
+- Do not persist video metadata, feed results, or filter state in MongoDB beyond `feedLastVisitedAt`.
+- Aggregate feed pages server-side from the user’s saved channels and their uploads playlists.
+- Use an opaque cursor for infinite scrolling across the merged multi-channel result set.
+- API keys and raw YouTube responses must not reach the browser.
+
+### v1.3 — Channel Intelligence (planned)
+
+- Subscriber count and video count on saved-channel cards.
+- Latest upload date on saved-channel cards.
+- Inactive-channel indicators.
+- Sort saved channels by recently uploaded or channel size.
+
+### v1.4 — Personal viewing tools (planned)
+
+- Watch Later.
+- Watched status and progress.
+- Favorites; personal video notes may follow later.
+
 ### Later potential improvements
 
-- Channel folders, tags, and custom sorting.
-- Favorites, watch later, and personal video notes.
-- Watch history and progress tracking.
+- Channel folders, tags, and custom sorting beyond v1.3.
 - Notifications for new videos.
 - Caching and background refresh strategies.
 - YouTube account import.
 - Playlist support.
 - Shared or collaborative channel libraries.
-- Channel analytics and upload schedules.
+- Channel analytics and upload schedules beyond v1.3 card metadata.
