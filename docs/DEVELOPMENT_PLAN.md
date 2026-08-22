@@ -418,6 +418,19 @@ Give authenticated users one chronological Home feed of latest eligible uploads 
 - Route feed playback through the existing `/channels/[channelId]/videos/[videoId]` page and ownership checks.
 - Add unit tests for feed cursor encoding/decoding, filter validation, and merge-sort behavior; add integration tests for authentication, ownership-safe channel filtering, eligibility/date/duration filtering, and visit-timestamp updates; add end-to-end coverage for Home landing, filters, infinite scroll, new markers, and playback.
 
+### Implementation notes (locked)
+
+- **Merge:** k-way merge by `publishedAt` with per-channel opaque cursors (`pageToken`, `startIndex`, `exhausted`).
+- **Quota:** batch YouTube playlist/detail fetches with `MAX_CHANNEL_FETCH_CONCURRENCY = 8` (sequential batches, parallel within each batch).
+- **Date presets:** client computes `publishedAfter` in the user’s local timezone (rolling today / 7 / 30 / 90 days).
+- **Duration presets:** inclusive ranges — under 10 min (`< 600s`), 10–30 min (`600–1800s`), over 30 min (`> 1800s`).
+- **Filters UI:** inline on desktop; bottom sheet on mobile; channel multi-select dropdown with “All channels” default.
+- **Filter state:** Zustand `feed-store` (not URL, not MongoDB); survives navigation within the session.
+- **Visit tracking:** client records `visitStartedAt` on mount; `PATCH /api/feed/visit` on leave (`sendBeacon` / `pagehide`).
+- **New markers:** `feedLastVisitedAt` returned on every `GET /api/feed/videos`; strict `publishedAt` comparison; unset → no markers.
+- **Navigation:** post-login `/home`; nav labels Home · My Channels · Discover.
+- **Designs:** update `designs/index.html` before application implementation.
+
 ### Completion Criteria
 
 - Authenticated users land on `/home` after login and can open a merged feed of eligible uploads from all saved channels, newest first.

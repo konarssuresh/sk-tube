@@ -17,7 +17,7 @@ export function useRegisterMutation() {
     mutationKey: authKeys.register(),
     mutationFn: registerUser,
     onSuccess: () => {
-      router.push("/dashboard");
+      router.push("/home");
       router.refresh();
     },
   });

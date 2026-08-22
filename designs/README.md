@@ -18,6 +18,7 @@ Open `index.html` in a browser to review the interactive MVP design reference.
 - Discover: video search with eligible-result filtering and infinite-scroll loading state
 - Discover: channel search with public metrics and already-saved/add-to-library states
 - Embedded playback for a searched video whose channel is not in the user’s library
+- Home: unified feed across saved channels with inline filters, “New” markers, and empty-library state
 
 ## Visual direction
 

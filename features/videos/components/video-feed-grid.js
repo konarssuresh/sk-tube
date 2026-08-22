@@ -6,10 +6,12 @@ export function VideoFeedGrid({
   channelId,
   channelTitle,
   variant,
+  feedLastVisitedAt,
   className,
   ...props
 }) {
   const isSearch = variant === "search";
+  const isFeed = variant === "feed";
 
   return (
     <ul
@@ -20,13 +22,23 @@ export function VideoFeedGrid({
       {...props}
     >
       {videos.map((video) => (
-        <li key={video.videoId}>
+        <li key={isFeed ? `${video.channelId}-${video.videoId}` : video.videoId}>
           <VideoCard
             video={video}
-            channelId={isSearch ? undefined : channelId}
-            channelTitle={isSearch ? undefined : channelTitle}
+            channelId={isSearch ? undefined : isFeed ? video.channelId : channelId}
+            channelTitle={
+              isSearch ? undefined : isFeed ? video.channelTitle : channelTitle
+            }
             playbackHref={
               isSearch ? `/search/videos/${video.videoId}` : undefined
+            }
+            showNewBadge={
+              isFeed
+                ? Boolean(
+                    feedLastVisitedAt &&
+                      new Date(video.publishedAt) > new Date(feedLastVisitedAt),
+                  )
+                : false
             }
           />
         </li>

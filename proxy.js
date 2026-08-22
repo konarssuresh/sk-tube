@@ -6,6 +6,8 @@ const AUTH_PATHS = ["/login", "/register"];
 
 function isProtectedPath(pathname) {
   return (
+    pathname === "/home" ||
+    pathname.startsWith("/home/") ||
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
     pathname.startsWith("/channels") ||
@@ -28,7 +30,7 @@ export async function proxy(request) {
   }
 
   if (isAuthPath(pathname) && authenticated) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return NextResponse.next();

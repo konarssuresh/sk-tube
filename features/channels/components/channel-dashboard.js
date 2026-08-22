@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Compass, Library, Plus, SearchX } from "lucide-react";
+import { Library, Plus, SearchX } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
+import { ProtectedNav } from "@/components/shared/protected-nav";
 import { PageHeader } from "@/components/shared/page-header";
 import { ChannelGridSkeleton } from "@/features/channels/components/channel-grid-skeleton";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { filterChannelsBySearch } from "@/features/channels/utils";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { useUiStore } from "@/stores/ui-store";
 
-export function ChannelDashboard({ userName }) {
+export function ChannelDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [channelToRemove, setChannelToRemove] = useState(null);
   const openAddChannelDialog = useUiStore((state) => state.openAddChannelDialog);
@@ -103,22 +103,18 @@ export function ChannelDashboard({ userName }) {
 
   return (
     <>
+      <ProtectedNav className="mb-8" />
+
       <PageHeader
         eyebrow="Your library"
-        title={`Welcome, ${userName}`}
+        title="My Channels"
         description={
           hasSearchQuery && !isLoading && !isError && channels.length > 0
             ? `Showing ${filteredChannels.length} of ${channels.length} saved channels.`
-            : "Browse, search, and manage your saved YouTube channels."
+            : "The creators you chose, recently added first."
         }
         action={
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-            <Button asChild variant="outline">
-              <Link href="/search/videos">
-                <Compass className="size-4" aria-hidden="true" />
-                Discover
-              </Link>
-            </Button>
             <Button type="button" variant="primary" onClick={openAddChannelDialog}>
               <Plus className="size-4" aria-hidden="true" />
               Add Channel

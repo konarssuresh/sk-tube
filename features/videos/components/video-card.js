@@ -10,12 +10,14 @@ import {
   parseIso8601Duration,
 } from "@/features/videos/utils";
 import { cn } from "@/lib/utils";
+import { NewBadge } from "@/features/feed/components/new-badge";
 
 export function VideoCard({
   video,
   channelId,
   channelTitle,
   playbackHref,
+  showNewBadge = false,
   className,
 }) {
   const durationLabel = formatVideoDuration(
@@ -49,6 +51,11 @@ export function VideoCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           />
+          {showNewBadge ? (
+            <span className="absolute left-2 top-2">
+              <NewBadge />
+            </span>
+          ) : null}
           {durationLabel ? (
             <span className="absolute right-2 bottom-2 rounded-[5px] bg-black/78 px-1.5 py-0.5 text-[11px] font-extrabold text-white">
               {durationLabel}
