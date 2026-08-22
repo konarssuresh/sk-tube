@@ -353,14 +353,14 @@ Let authenticated users discover public YouTube videos and channels without auto
 - Add `GET /api/search/videos?q=&cursor=`:
   - require an authenticated user but do not require a saved channel;
   - validate a non-empty query and opaque cursor;
-  - use YouTube video search, retrieve details in batches, and reuse the shared video eligibility filter;
+  - use YouTube video search with `order=viewCount`, retrieve details in batches, and reuse the shared video eligibility filter;
   - return mapped result data only and a next cursor.
 - Use `useInfiniteQuery` for video-search results and retain no search data beyond normal in-memory browser state.
 - Display video thumbnail, title, channel title, duration, and published date, plus loading, retry, empty, and end-of-results states.
 - Navigate a selected search result to `/search/videos/[videoId]` and reuse `YoutubePlayer`, its current-data validation, embed checks, and “Open on YouTube” fallback. Do not apply saved-channel ownership validation to this route.
 - Add `GET /api/search/channels?q=&cursor=`:
   - require an authenticated user;
-  - search YouTube channels and retrieve safe detail/statistics fields in batches;
+  - search YouTube channels with `order=videoCount`, retrieve safe detail/statistics fields in batches, and preserve `search.list` order when mapping results so relevance remains the tiebreaker for equal video counts;
   - return avatar, title, handle when available, description excerpt, and available subscriber, video, and view counts.
 - Build channel-result cards that indicate whether the channel is already saved by the current user.
 - Let a user add a discovered channel through the existing canonical-ID duplicate-safe add-channel mutation; do not create a second SavedChannel write path.
@@ -370,9 +370,11 @@ Let authenticated users discover public YouTube videos and channels without auto
 ### Completion Criteria
 
 - Authenticated users can search and infinitely scroll eligible public video results.
+- Video search results appear in descending view-count order.
 - A searched video plays through the same embedded-player experience even when its channel is not saved.
 - The searched-video player rejects invalid, unavailable, or ineligible videos and exposes the normal YouTube fallback for blocked embedding.
 - Authenticated users can search public channel results and see supported channel details.
+- Channel search results appear in descending video-count order, with relevance as the tiebreaker.
 - Users can add a discovered channel once, with correct already-saved feedback and no duplicate records.
 - Search data is never persisted in MongoDB, and API keys/raw YouTube responses never reach the browser.
 
