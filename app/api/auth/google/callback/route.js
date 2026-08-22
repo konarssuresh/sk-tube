@@ -39,7 +39,7 @@ export async function GET(request) {
 
     await setSessionCookie(String(user._id));
 
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/home", request.url));
   } catch (error) {
     return redirectToLogin(request, mapErrorToGoogleAuthCode(error));
   }

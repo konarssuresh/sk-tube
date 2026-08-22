@@ -11,7 +11,7 @@ export default async function HomePage() {
   if (token) {
     try {
       await verifySessionToken(token);
-      redirect("/dashboard");
+      redirect("/home");
     } catch {
       redirect("/login");
     }

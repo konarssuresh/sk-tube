@@ -5,8 +5,9 @@ import Link from "next/link";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { ChannelSearchResults } from "@/features/discovery/components/channel-search-results";
-import { DiscoverSearchInput } from "@/features/discovery/components/discover-search-input";
 import { DiscoverTabs } from "@/features/discovery/components/discover-tabs";
+import { DiscoverSearchInput } from "@/features/discovery/components/discover-search-input";
+import { ProtectedNav } from "@/components/shared/protected-nav";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -29,12 +30,14 @@ export function ChannelSearchPage() {
     <>
       <div className="mb-6">
         <Link
-          href="/dashboard"
+          href="/home"
           className="inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
         >
-          ← Back to My Channels
+          ← Back to Home
         </Link>
       </div>
+
+      <ProtectedNav className="mb-8" />
 
       <PageHeader
         eyebrow="Discover"

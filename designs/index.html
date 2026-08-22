@@ -184,6 +184,17 @@
       .discover-tabs { display: inline-flex; gap: 4px; margin-bottom: 30px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: #101016; }
       .discover-tabs .btn { min-height: 35px; padding: 0 12px; color: var(--muted); background: transparent; }
       .discover-tabs .btn.active { color: var(--text); background: var(--surface-raised); }
+      .app-nav { display: inline-flex; gap: 4px; margin-bottom: 30px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: #101016; }
+      .app-nav .btn { min-height: 35px; padding: 0 12px; color: var(--muted); background: transparent; }
+      .app-nav .btn.active { color: var(--text); background: var(--surface-raised); }
+      .feed-filters { display: grid; gap: 16px; margin-bottom: 30px; padding: 17px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+      .feed-filters-row { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .feed-field label { display: block; margin-bottom: 8px; color: #d1d1d8; font-size: 13px; font-weight: 700; }
+      .feed-field select { width: 100%; min-height: 46px; border: 1px solid var(--border); border-radius: 11px; padding: 0 13px; color: var(--text); background: #0c0c12; }
+      .channel-checklist { border: 1px solid var(--border); border-radius: 11px; padding: 12px; background: #0c0c12; }
+      .channel-checklist label { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; color: var(--muted); }
+      .new-badge { display: inline-flex; align-items: center; border-radius: 5px; padding: 3px 6px; background: rgba(255,59,67,.15); color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+      .video-thumb .new-badge { position: absolute; left: 8px; top: 8px; }
       .discover-search { max-width: 640px; margin-bottom: 30px; }
       .search-hint { margin: -17px 0 27px; color: var(--subtle); font-size: 13px; }
       .channel-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
@@ -322,6 +333,8 @@
         <button class="active" data-target="login">Login</button>
         <button data-target="register">Register</button>
         <button data-target="dashboard">Dashboard</button>
+        <button data-target="home">Home feed</button>
+        <button data-target="home-empty">Home empty</button>
         <button data-target="add-channel">Add channel</button>
         <button data-target="remove-channel">Remove channel</button>
         <button data-target="empty">Empty & error</button>
@@ -379,10 +392,19 @@
         </div>
       </section>
 
+      <section class="screen" id="home">
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><div class="app-nav"><button class="btn active" type="button">Home</button><button class="btn" type="button" data-nav="dashboard">My Channels</button><button class="btn" type="button" data-nav="search-videos">Discover</button></div><div class="page-head"><div><div class="eyebrow">Home</div><h1>Latest from your channels</h1><p class="muted">Newest eligible uploads across your saved library.</p></div><button class="btn btn-ghost" type="button">Log out</button></div><div class="feed-filters"><div class="channel-checklist"><div class="feed-field"><label>Channels</label><label><input type="checkbox" checked /> All channels</label><label><input type="checkbox" checked /> Fireship</label><label><input type="checkbox" checked /> Marques Brownlee</label><label><input type="checkbox" checked /> The Primeagen</label></div></div><div class="feed-filters-row"><div class="feed-field"><label for="home-date">Published</label><select id="home-date"><option>All time</option><option>Today</option><option>Past week</option></select></div><div class="feed-field"><label for="home-duration">Duration</label><select id="home-duration"><option>Any duration</option><option>Under 10 minutes</option><option>10–30 minutes</option></select></div><div class="feed-field"><label>Mobile</label><button class="btn btn-outline" type="button" style="width:100%">Filters</button></div></div></div><div class="video-grid"><a class="video-card" href="#player" data-nav="player"><div class="video-thumb three"><span class="new-badge">New</span><span class="duration">15:22</span></div><div class="video-info"><h3>Everything new in modern React, explained</h3><p>Fireship · 2 hours ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb"><span class="duration">12:08</span></div><div class="video-info"><h3>The JavaScript features you are probably missing</h3><p>Fireship · 2 days ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb two"><span class="new-badge">New</span><span class="duration">18:41</span></div><div class="video-info"><h3>iPhone camera test: low light reality check</h3><p>Marques Brownlee · 5 hours ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb four"><span class="duration">22:17</span></div><div class="video-info"><h3>Why your TypeScript build feels slow</h3><p>The Primeagen · 1 day ago</p></div></a></div></div></div>
+      </section>
+
+      <section class="screen" id="home-empty">
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><div class="app-nav"><button class="btn active" type="button">Home</button><button class="btn" type="button">My Channels</button><button class="btn" type="button">Discover</button></div><div class="page-head"><div><div class="eyebrow">Home</div><h1>Latest from your channels</h1><p class="muted">Add channels to build your unified feed.</p></div></div><div class="empty-state"><div class="empty-content"><div class="empty-graphic">▣</div><h2>Your library is empty</h2><p>Add channels to see a unified feed of their latest long-form uploads here.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-nav="dashboard">Add a channel</button><button class="btn btn-outline" type="button" data-nav="search-videos">Open Discover</button></div></div></div></div></div>
+      </section>
+
       <section class="screen" id="dashboard">
         <div class="app-shell">
           <header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header>
           <div class="page">
+            <div class="app-nav"><button class="btn" type="button" data-nav="home">Home</button><button class="btn active" type="button">My Channels</button><button class="btn" type="button" data-nav="search-videos">Discover</button></div>
             <div class="page-head"><div><div class="eyebrow">Your library</div><h1>My Channels</h1><p class="muted">The creators you chose, recently added first.</p></div><button class="btn btn-primary" data-nav="add-channel"><span>＋</span> Add channel</button></div>
             <label class="search-box"><span class="search-icon">⌕</span><input id="channel-search" type="search" placeholder="Search channels" /></label>
             <div class="channel-grid" id="channel-grid">

@@ -97,7 +97,7 @@ describe("google auth routes", () => {
     const response = await GET(request);
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard");
+    expect(response.headers.get("location")).toBe("http://localhost:3000/home");
     expect(mockAuthenticateWithGoogle).toHaveBeenCalledWith({
       googleId: "google-subject-123",
       email: "user@example.com",

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DiscoverSearchInput } from "@/features/discovery/components/discover-search-input";
 import { DiscoverTabs } from "@/features/discovery/components/discover-tabs";
+import { ProtectedNav } from "@/components/shared/protected-nav";
 import { VideoSearchResults } from "@/features/discovery/components/video-search-results";
 import { LogoutButton } from "@/features/auth/components/logout-button";
 
@@ -29,12 +30,14 @@ export function VideoSearchPage() {
     <>
       <div className="mb-6">
         <Link
-          href="/dashboard"
+          href="/home"
           className="inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
         >
-          ← Back to My Channels
+          ← Back to Home
         </Link>
       </div>
+
+      <ProtectedNav className="mb-8" />
 
       <PageHeader
         eyebrow="Discover"

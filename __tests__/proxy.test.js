@@ -58,9 +58,12 @@ describe("proxy", () => {
   it("redirects unauthenticated users away from protected pages", async () => {
     const { proxy } = await import("@/proxy");
 
+    const homeResponse = await proxy(createRequest("/home"));
     const dashboardResponse = await proxy(createRequest("/dashboard"));
     const searchResponse = await proxy(createRequest("/search/videos"));
 
+    expect(homeResponse.status).toBe(307);
+    expect(homeResponse.headers.get("location")).toBe("http://localhost:3000/login");
     expect(dashboardResponse.status).toBe(307);
     expect(dashboardResponse.headers.get("location")).toBe("http://localhost:3000/login");
     expect(searchResponse.headers.get("location")).toBe("http://localhost:3000/login");
@@ -75,10 +78,10 @@ describe("proxy", () => {
     const registerResponse = await proxy(createRequest("/register", token));
 
     expect(loginResponse.headers.get("location")).toBe(
-      "http://localhost:3000/dashboard",
+      "http://localhost:3000/home",
     );
     expect(registerResponse.headers.get("location")).toBe(
-      "http://localhost:3000/dashboard",
+      "http://localhost:3000/home",
     );
   });
 

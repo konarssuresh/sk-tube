@@ -17,7 +17,7 @@ export function useLoginMutation() {
     mutationKey: authKeys.login(),
     mutationFn: loginUser,
     onSuccess: () => {
-      router.push("/dashboard");
+      router.push("/home");
       router.refresh();
     },
   });

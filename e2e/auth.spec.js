@@ -12,8 +12,10 @@ test.describe("authentication", () => {
     await page.getByLabel("Password").fill(user.password);
     await page.getByRole("button", { name: "Create account" }).click();
 
-    await page.waitForURL("**/dashboard");
-    await expect(page.getByRole("heading", { name: /Welcome,/ })).toBeVisible();
+    await page.waitForURL("**/home");
+    await expect(
+      page.getByRole("heading", { name: "Latest from your channels" }),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "Log out" }).click();
     await page.waitForURL("**/login");
@@ -22,8 +24,10 @@ test.describe("authentication", () => {
     await page.getByLabel("Password").fill(user.password);
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await page.waitForURL("**/dashboard");
-    await expect(page.getByRole("heading", { name: /Welcome,/ })).toBeVisible();
+    await page.waitForURL("**/home");
+    await expect(
+      page.getByRole("heading", { name: "Latest from your channels" }),
+    ).toBeVisible();
   });
 
   test("shows Continue with Google on the register page", async ({ page }) => {
@@ -37,7 +41,7 @@ test.describe("authentication", () => {
   test("redirects unauthenticated visitors away from protected pages", async ({
     page,
   }) => {
-    await page.goto("/dashboard");
+    await page.goto("/home");
     await page.waitForURL("**/login");
 
     await page.goto("/channels/507f1f77bcf86cd799439012");
