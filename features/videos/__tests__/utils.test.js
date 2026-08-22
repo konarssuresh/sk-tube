@@ -16,7 +16,7 @@ function createVideo(overrides = {}) {
       liveBroadcastContent: "none",
     },
     contentDetails: {
-      duration: "PT2M",
+      duration: "PT3M",
     },
     ...overrides,
   };
@@ -40,21 +40,31 @@ describe("parseIso8601Duration", () => {
 });
 
 describe("isVideoEligible", () => {
-  it("includes videos that are exactly two minutes long", () => {
+  it("includes videos that are exactly three minutes long", () => {
     expect(
       isVideoEligible(
         createVideo({
-          contentDetails: { duration: "PT2M" },
+          contentDetails: { duration: "PT3M" },
         }),
       ),
     ).toBe(true);
   });
 
-  it("excludes videos shorter than two minutes", () => {
+  it("excludes videos shorter than three minutes", () => {
     expect(
       isVideoEligible(
         createVideo({
-          contentDetails: { duration: "PT1M59S" },
+          contentDetails: { duration: "PT2M59S" },
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("excludes videos that are exactly two minutes long", () => {
+    expect(
+      isVideoEligible(
+        createVideo({
+          contentDetails: { duration: "PT2M" },
         }),
       ),
     ).toBe(false);
