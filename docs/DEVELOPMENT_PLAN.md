@@ -95,7 +95,7 @@ Create the secure server-side foundation for users, saved channels, validation, 
 - User email uniqueness and saved-channel duplicate uniqueness are enforced by MongoDB indexes.
 - Password hashes are never included in ordinary user reads or API responses.
 - Environment validation fails clearly when a required secret is missing.
-- Domain utilities have unit tests in `lib/__tests__/` and `features/*/__tests__/`, including the exact two-minute duration boundary.
+- Domain utilities have unit tests in `lib/__tests__/` and `features/*/__tests__/`, including the exact three-minute duration boundary.
 
 ## Phase 2 — Email/Password Authentication and Route Protection
 
@@ -249,7 +249,7 @@ Display current eligible YouTube uploads and play them through the official embe
   - retrieve matching video details and `status.embeddable` in batches
   - exclude missing/private/unavailable videos
   - exclude live, upcoming, and archived livestreams
-  - exclude videos with duration strictly below 120 seconds
+  - exclude videos with duration strictly below 180 seconds
   - continue through underlying YouTube pages until 50 eligible videos are collected or results end
   - return only mapped SKTube video fields, including embed eligibility, and an opaque next cursor
 - Create video query keys and `useInfiniteQuery` hook in `features/videos/hooks/`.
@@ -265,7 +265,7 @@ Display current eligible YouTube uploads and play them through the official embe
 
 - Videos appear newest first and show thumbnail, title, duration, and published date.
 - The feed returns up to 50 eligible videos at a time and loads additional pages by scrolling.
-- Videos under two minutes, livestreams, and unavailable videos are absent.
+- Videos under three minutes, livestreams, and unavailable videos are absent.
 - Video data remains current from YouTube and is never saved as application video records.
 - The feed handles YouTube errors, no eligible videos, and end of results clearly.
 - Initial and paginated video loading show a one-row shimmer skeleton grid (1/2/3 cards by breakpoint) instead of a text loader.
@@ -286,7 +286,7 @@ Verify the full MVP against the PRD and prepare it for a safe first deployment.
 - Test mobile, tablet, and desktop layouts.
 - Add unit tests in colocated `__tests__/` folders per `ARCHITECTURE.md` for:
   - channel input parsing
-  - duration parsing and <120-second filtering
+  - duration parsing and <180-second filtering
   - JWT creation and verification
   - Zod validation and YouTube response mapping
 - Add integration tests in colocated `__tests__/` folders per `ARCHITECTURE.md` for:

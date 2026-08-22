@@ -456,9 +456,9 @@ The shared utility excludes a video when any of these are true:
 
 - The video detail is absent, deleted, private, unavailable, or not public.
 - It is a live, upcoming, or archived livestream.
-- Its parsed ISO 8601 duration is **strictly less than 120 seconds**.
+- Its parsed ISO 8601 duration is **strictly less than 180 seconds**.
 
-A video exactly two minutes long is eligible. This is the explicit MVP short-video rule; SKTube does not attempt to infer YouTube’s internal Shorts classification.
+A video exactly three minutes long is eligible. This is the explicit MVP short-video rule; SKTube does not attempt to infer YouTube’s internal Shorts classification.
 
 ### Embedded video playback
 
@@ -546,7 +546,7 @@ Validate server environment variables at application startup through `lib/env.js
 ### Unit tests
 
 - Supported channel input parsing.
-- Video duration parsing and eligibility filtering, especially the 120-second boundary.
+- Video duration parsing and eligibility filtering, especially the 180-second boundary.
 - JWT/session utility behavior.
 - Zod schemas.
 - YouTube response mapping.

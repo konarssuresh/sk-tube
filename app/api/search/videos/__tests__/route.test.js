@@ -18,7 +18,7 @@ const videos = [
     videoId: "video-1",
     title: "Eligible Video",
     thumbnailUrl: "https://i.ytimg.com/vi/video-1/hqdefault.jpg",
-    duration: "PT2M",
+    duration: "PT3M",
     publishedAt: "2026-01-01T00:00:00.000Z",
     watchUrl: "https://www.youtube.com/watch?v=video-1",
     channelTitle: "Fireship",

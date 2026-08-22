@@ -1,6 +1,8 @@
 const ISO_8601_DURATION_PATTERN =
   /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/;
 
+export const MIN_ELIGIBLE_DURATION_SECONDS = 180;
+
 export function parseIso8601Duration(isoDuration) {
   if (!isoDuration || typeof isoDuration !== "string") {
     return null;
@@ -49,7 +51,7 @@ export function isVideoEligible(video) {
     return false;
   }
 
-  return durationSeconds >= 120;
+  return durationSeconds >= MIN_ELIGIBLE_DURATION_SECONDS;
 }
 
 export function formatVideoDuration(seconds) {

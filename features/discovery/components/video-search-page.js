@@ -58,7 +58,7 @@ export function VideoSearchPage() {
 
       <p className="mb-8 text-[13px] text-subtle">
         Long-form videos only · Shorts, livestreams, unavailable videos, and
-        videos under 2 minutes are hidden.
+        videos under 3 minutes are hidden.
       </p>
 
       <VideoSearchResults query={debouncedQuery} />

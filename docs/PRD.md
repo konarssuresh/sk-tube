@@ -274,7 +274,7 @@ SKTube adds a protected Discover area with two separate pages. Search results ar
 #### Video Search
 
 - Provide a protected video-search page where users can search public YouTube videos, including videos from channels they have not saved.
-- Search results must use the same eligible-video rules as the channel feed: exclude unavailable videos, live streams, and videos shorter than two minutes.
+- Search results must use the same eligible-video rules as the channel feed: exclude unavailable videos, live streams, and videos shorter than three minutes.
 - Each result shows thumbnail, title, channel title, published date, and duration.
 - Results load progressively with infinite scrolling.
 - Results are ordered by view count, highest first.
