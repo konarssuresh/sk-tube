@@ -277,6 +277,7 @@ SKTube will add a protected Discover area with two separate pages. Search result
 - Search results must use the same eligible-video rules as the channel feed: exclude unavailable videos, live streams, and videos shorter than two minutes.
 - Each result shows thumbnail, title, channel title, published date, and duration.
 - Results load progressively with infinite scrolling.
+- Results are ordered by view count, highest first.
 - Selecting a result opens the same SKTube embedded-player experience.
 - A searched video must not require that its channel exists in the user’s library. It must still be validated server-side against current YouTube data before playback.
 - Every searched video playback page includes the existing visible “Open on YouTube” fallback.
@@ -285,6 +286,7 @@ SKTube will add a protected Discover area with two separate pages. Search result
 
 - Provide a protected channel-search page where users can search public YouTube channels by name or `@handle`.
 - Each result shows the channel avatar, title, handle when available, description excerpt, subscriber count when publicly available, total video count, and total view count when available.
+- Results are ordered by total video count, highest first. When channels have the same video count, more relevant matches appear first.
 - Clearly indicate when the current user has already saved a channel.
 - Let the user add a discovered channel directly from search results using the established duplicate-safe saved-channel flow.
 - Do not automatically save search-result channels or retain the user’s searches in v1.1.

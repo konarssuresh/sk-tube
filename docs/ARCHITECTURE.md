@@ -411,8 +411,8 @@ The cursor represents only the next position in the saved channel’s uploads pl
 
 Discovery requests are protected by `requireCurrentUser()` but do not read or write the user’s saved-channel records unless the user explicitly chooses to add a channel.
 
-- `GET /api/search/videos` validates a non-empty query and opaque cursor, calls YouTube search for video results, retrieves video details in batches, applies the shared eligibility filter, and returns only mapped SKTube fields plus the next cursor.
-- `GET /api/search/channels` validates a non-empty query and opaque cursor, calls YouTube search for channel results, retrieves channel statistics/details in batches, and returns only the fields needed for channel-result cards.
+- `GET /api/search/videos` validates a non-empty query and opaque cursor, calls YouTube search for video results with `order=viewCount`, retrieves video details in batches, applies the shared eligibility filter, and returns only mapped SKTube fields plus the next cursor. Eligibility filtering preserves relative view-count order.
+- `GET /api/search/channels` validates a non-empty query and opaque cursor, calls YouTube search for channel results with `order=videoCount`, retrieves channel statistics/details in batches, maps results in `search.list` order so video-count ranking and relevance tiebreaking are preserved across paginated pages, and returns only the fields needed for channel-result cards.
 - Channel statistics must be treated as optional display data because YouTube may not expose every metric for every channel.
 - Search input, result pages, cursors, and result metadata remain in browser memory only. Do not persist search history or search results in MongoDB.
 - Adding a discovered channel reuses the existing canonical-ID duplicate check and saved-channel mutation; it must not create a separate persistence path.
