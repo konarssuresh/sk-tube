@@ -1,7 +1,16 @@
 import { VideoCard } from "@/features/videos/components/video-card";
 import { cn } from "@/lib/utils";
 
-export function VideoFeedGrid({ videos, channelId, channelTitle, className, ...props }) {
+export function VideoFeedGrid({
+  videos,
+  channelId,
+  channelTitle,
+  variant,
+  className,
+  ...props
+}) {
+  const isSearch = variant === "search";
+
   return (
     <ul
       className={cn(
@@ -14,8 +23,11 @@ export function VideoFeedGrid({ videos, channelId, channelTitle, className, ...p
         <li key={video.videoId}>
           <VideoCard
             video={video}
-            channelId={channelId}
-            channelTitle={channelTitle}
+            channelId={isSearch ? undefined : channelId}
+            channelTitle={isSearch ? undefined : channelTitle}
+            playbackHref={
+              isSearch ? `/search/videos/${video.videoId}` : undefined
+            }
           />
         </li>
       ))}

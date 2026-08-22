@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Library, Plus, SearchX } from "lucide-react";
+import Link from "next/link";
+import { Compass, Library, Plus, SearchX } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
@@ -112,6 +113,12 @@ export function ChannelDashboard({ userName }) {
         }
         action={
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <Button asChild variant="outline">
+              <Link href="/search/videos">
+                <Compass className="size-4" aria-hidden="true" />
+                Discover
+              </Link>
+            </Button>
             <Button type="button" variant="primary" onClick={openAddChannelDialog}>
               <Plus className="size-4" aria-hidden="true" />
               Add Channel

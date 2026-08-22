@@ -11,16 +11,28 @@ import {
 } from "@/features/videos/utils";
 import { cn } from "@/lib/utils";
 
-export function VideoCard({ video, channelId, channelTitle, className }) {
+export function VideoCard({
+  video,
+  channelId,
+  channelTitle,
+  playbackHref,
+  className,
+}) {
   const durationLabel = formatVideoDuration(
     parseIso8601Duration(video.duration),
   );
   const publishedLabel = formatPublishedDate(video.publishedAt);
   const shouldReduceMotion = useReducedMotion();
+  const displayChannelTitle = channelTitle ?? video.channelTitle ?? "";
+  const href =
+    playbackHref ??
+    (channelId
+      ? `/channels/${channelId}/videos/${video.videoId}`
+      : `/search/videos/${video.videoId}`);
 
   return (
     <Link
-      href={`/channels/${channelId}/videos/${video.videoId}`}
+      href={href}
       className={cn("group block text-inherit no-underline", className)}
     >
       <motion.article
@@ -48,7 +60,7 @@ export function VideoCard({ video, channelId, channelTitle, className }) {
             {video.title}
           </h2>
           <p className="mt-1.5 text-[13px] text-muted">
-            {channelTitle}
+            {displayChannelTitle}
             {publishedLabel ? ` · ${publishedLabel}` : ""}
           </p>
         </div>

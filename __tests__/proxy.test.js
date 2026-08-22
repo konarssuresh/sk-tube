@@ -58,10 +58,12 @@ describe("proxy", () => {
   it("redirects unauthenticated users away from protected pages", async () => {
     const { proxy } = await import("@/proxy");
 
-    const response = await proxy(createRequest("/dashboard"));
+    const dashboardResponse = await proxy(createRequest("/dashboard"));
+    const searchResponse = await proxy(createRequest("/search/videos"));
 
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/login");
+    expect(dashboardResponse.status).toBe(307);
+    expect(dashboardResponse.headers.get("location")).toBe("http://localhost:3000/login");
+    expect(searchResponse.headers.get("location")).toBe("http://localhost:3000/login");
   });
 
   it("redirects authenticated users away from login and register", async () => {
