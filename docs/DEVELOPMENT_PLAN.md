@@ -340,6 +340,42 @@ Allow new users to create an account via Google while preserving linking for exi
 - Conflicting Google subject IDs are rejected.
 - Lint, build, and tests pass.
 
+## Phase 9 — Search & Discovery
+
+### Goal
+
+Let authenticated users discover public YouTube videos and channels without automatically adding them to their SKTube library.
+
+### Tasks
+
+- Add protected Discover navigation with distinct Video Search and Channel Search pages.
+- Create `features/discovery/` with its own schemas, API functions, query keys, hooks, and focused components; reuse existing video-card, channel-card, loading, error, and add-channel primitives where their behavior matches.
+- Add `GET /api/search/videos?q=&cursor=`:
+  - require an authenticated user but do not require a saved channel;
+  - validate a non-empty query and opaque cursor;
+  - use YouTube video search, retrieve details in batches, and reuse the shared video eligibility filter;
+  - return mapped result data only and a next cursor.
+- Use `useInfiniteQuery` for video-search results and retain no search data beyond normal in-memory browser state.
+- Display video thumbnail, title, channel title, duration, and published date, plus loading, retry, empty, and end-of-results states.
+- Navigate a selected search result to `/search/videos/[videoId]` and reuse `YoutubePlayer`, its current-data validation, embed checks, and “Open on YouTube” fallback. Do not apply saved-channel ownership validation to this route.
+- Add `GET /api/search/channels?q=&cursor=`:
+  - require an authenticated user;
+  - search YouTube channels and retrieve safe detail/statistics fields in batches;
+  - return avatar, title, handle when available, description excerpt, and available subscriber, video, and view counts.
+- Build channel-result cards that indicate whether the channel is already saved by the current user.
+- Let a user add a discovered channel through the existing canonical-ID duplicate-safe add-channel mutation; do not create a second SavedChannel write path.
+- Keep search terms, results, and history out of MongoDB. Do not add background search indexing or caching.
+- Add unit tests for discovery input/cursor validation and result mapping; add integration tests for authentication, eligibility filtering, and duplicate-safe discovered-channel addition; add end-to-end coverage for both search pages and searched-video playback.
+
+### Completion Criteria
+
+- Authenticated users can search and infinitely scroll eligible public video results.
+- A searched video plays through the same embedded-player experience even when its channel is not saved.
+- The searched-video player rejects invalid, unavailable, or ineligible videos and exposes the normal YouTube fallback for blocked embedding.
+- Authenticated users can search public channel results and see supported channel details.
+- Users can add a discovered channel once, with correct already-saved feedback and no duplicate records.
+- Search data is never persisted in MongoDB, and API keys/raw YouTube responses never reach the browser.
+
 ## 3. Out of Scope for This Plan
 
 Do not implement these during MVP development:

@@ -96,9 +96,13 @@ app/
 ├── (protected)/
 │   ├── layout.js
 │   ├── dashboard/page.js
-│   └── channels/[channelId]/
+│   ├── channels/[channelId]/
 │       ├── page.js
 │       └── videos/[videoId]/page.js
+│   └── search/
+│       ├── videos/page.js
+│       ├── videos/[videoId]/page.js
+│       └── channels/page.js
 ├── api/
 │   ├── auth/
 │   │   ├── register/route.js
@@ -107,9 +111,12 @@ app/
 │   │   └── google/
 │   │       ├── route.js          # Starts Google OAuth
 │   │       └── callback/route.js # Verifies and links Google identity
-│   └── channels/
+│   ├── channels/
 │       ├── route.js
 │       └── [channelId]/videos/route.js
+│   └── search/
+│       ├── videos/route.js
+│       └── channels/route.js
 ├── globals.css
 ├── layout.js
 ├── page.js
@@ -138,13 +145,20 @@ features/
 │   ├── hooks/
 │   ├── query-keys.js
 │   └── schemas.js
-└── videos/
+├── videos/
     ├── __tests__/
     ├── api.js
     ├── components/
     ├── hooks/
     ├── query-keys.js
     └── utils.js
+└── discovery/
+    ├── __tests__/
+    ├── api.js
+    ├── components/
+    ├── hooks/
+    ├── query-keys.js
+    └── schemas.js
 lib/
 ├── __tests__/
 │   ├── env.test.js
@@ -312,6 +326,8 @@ Install one Query Client provider at the application root. Define query keys in 
 channels.all
 channels.detail(channelId)
 videos.byChannel(channelId)
+discovery.videos(query)
+discovery.channels(query)
 ```
 
 Rules:
@@ -323,7 +339,7 @@ Rules:
 - Query keys live in `features/<feature>/query-keys.js`.
 - Use `useQuery` for saved-channel reads.
 - Use `useMutation` for Server Action calls and Route Handler mutations, then invalidate the affected query keys.
-- Use `useInfiniteQuery` only for the channel video feed.
+- Use `useInfiniteQuery` for paginated video lists only: the saved-channel video feed and video-search results.
 - React Hook Form owns local form field state only; mutation lifecycle (`isPending`, `error`, `onSuccess`) comes from React Query.
 - Do not duplicate query results into Zustand.
 - Keep fetch functions and query hooks inside the feature that owns them.
@@ -349,8 +365,10 @@ Use Route Handlers for authentication and data accessed by client-side React Que
 - `GET /api/auth/google/callback`: verifies the Google identity, finds or creates the user, and sets `sktube_session`.
 - `GET /api/channels`: the authenticated user’s saved channels, ordered newest first.
 - `GET /api/channels/[channelId]/videos?cursor=`: current eligible YouTube videos for one saved channel.
+- `GET /api/search/videos?q=&cursor=`: authenticated, paginated public-video search.
+- `GET /api/search/channels?q=&cursor=`: authenticated, paginated public-channel search.
 
-Route Handlers must validate parameters, authenticate the request, verify ownership, and return an explicit JSON response shape. They must not expose database documents or raw YouTube responses directly.
+Route Handlers must validate parameters, authenticate the request, verify ownership whenever a saved resource is accessed, and return an explicit JSON response shape. They must not expose database documents or raw YouTube responses directly.
 
 ## 9. YouTube Integration
 
@@ -389,6 +407,16 @@ For a saved channel:
 
 The cursor represents only the next position in the saved channel’s uploads playlist. It does not grant access to another user’s channel because ownership is always checked before it is used.
 
+### Discovery search
+
+Discovery requests are protected by `requireCurrentUser()` but do not read or write the user’s saved-channel records unless the user explicitly chooses to add a channel.
+
+- `GET /api/search/videos` validates a non-empty query and opaque cursor, calls YouTube search for video results, retrieves video details in batches, applies the shared eligibility filter, and returns only mapped SKTube fields plus the next cursor.
+- `GET /api/search/channels` validates a non-empty query and opaque cursor, calls YouTube search for channel results, retrieves channel statistics/details in batches, and returns only the fields needed for channel-result cards.
+- Channel statistics must be treated as optional display data because YouTube may not expose every metric for every channel.
+- Search input, result pages, cursors, and result metadata remain in browser memory only. Do not persist search history or search results in MongoDB.
+- Adding a discovered channel reuses the existing canonical-ID duplicate check and saved-channel mutation; it must not create a separate persistence path.
+
 ### Eligibility filter
 
 The shared utility excludes a video when any of these are true:
@@ -401,7 +429,7 @@ A video exactly two minutes long is eligible. This is the explicit MVP short-vid
 
 ### Embedded video playback
 
-Selecting a video navigates to the protected SKTube route `/channels/[channelId]/videos/[videoId]`. The route verifies that the saved channel belongs to the current user and renders a reusable `YoutubePlayer` component.
+Selecting a saved-channel video navigates to `/channels/[channelId]/videos/[videoId]`; that route verifies ownership of the saved channel. Selecting a discovery-search result navigates to `/search/videos/[videoId]`; that route requires an authenticated user but does not require a saved channel. Both routes resolve current video details server-side, validate eligibility and embed availability, and render the same reusable `YoutubePlayer` component.
 
 - Use the official privacy-enhanced YouTube IFrame Player API with host `https://www.youtube-nocookie.com`.
 - Include `autoplay=1`, `enablejsapi=1`, `playsinline=1`, `rel=0`, and the application `origin` parameter; call `playVideo()` on player ready.

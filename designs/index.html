@@ -56,11 +56,9 @@
         height: 31px;
         place-items: center;
         border-radius: 10px;
-        background: var(--accent);
-        color: white;
-        font-size: 13px;
-        font-weight: 900;
-        letter-spacing: -1px;
+        background: center / contain no-repeat url("../public/sktube-logo.svg");
+        color: transparent;
+        font-size: 0;
       }
       .design-title { font-size: 14px; font-weight: 750; white-space: nowrap; }
       .design-nav {
@@ -183,6 +181,11 @@
       .search-box { position: relative; max-width: 370px; margin-bottom: 25px; }
       .search-box .search-icon { position: absolute; top: 13px; left: 14px; color: var(--subtle); }
       .search-box input { padding-left: 40px; }
+      .discover-tabs { display: inline-flex; gap: 4px; margin-bottom: 30px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: #101016; }
+      .discover-tabs .btn { min-height: 35px; padding: 0 12px; color: var(--muted); background: transparent; }
+      .discover-tabs .btn.active { color: var(--text); background: var(--surface-raised); }
+      .discover-search { max-width: 640px; margin-bottom: 30px; }
+      .search-hint { margin: -17px 0 27px; color: var(--subtle); font-size: 13px; }
       .channel-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
       .channel-card {
         overflow: hidden;
@@ -246,6 +249,16 @@
       .video-info { padding-top: 10px; }
       .video-info h3 { margin: 0; font-size: 15px; line-height: 1.35; }
       .video-info p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+      .search-channel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .search-channel-card { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 17px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+      .search-channel-card .hero-avatar { width: 55px; height: 55px; font-size: 16px; }
+      .search-channel-card h3 { margin: 0; font-size: 16px; }
+      .search-channel-card .handle { margin: 4px 0 10px; color: var(--muted); font-size: 13px; }
+      .channel-description { margin: 0; color: #c6c6cf; font-size: 13px; line-height: 1.45; }
+      .channel-stats { display: flex; flex-wrap: wrap; gap: 8px 13px; margin: 14px 0; color: var(--muted); font-size: 12px; }
+      .channel-stats strong { color: var(--text); font-weight: 750; }
+      .result-actions { display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+      .saved-indicator { color: var(--success); font-size: 12px; font-weight: 750; }
       .load-state { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 34px; color: var(--muted); font-size: 14px; }
       .spinner { width: 17px; height: 17px; border: 2px solid #474754; border-top-color: var(--accent); border-radius: 50%; animation: spin .75s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
@@ -273,6 +286,7 @@
         .auth-logo { margin-bottom: 42px; }
         .channel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .search-channel-grid { grid-template-columns: 1fr; }
       }
       @media (max-width: 530px) {
         .design-title { display: none; }
@@ -284,6 +298,9 @@
         .page-head .btn { width: 100%; }
         .search-box { max-width: none; }
         .channel-grid, .video-grid { grid-template-columns: 1fr; }
+        .discover-tabs { display: flex; width: 100%; }
+        .discover-tabs .btn { flex: 1; }
+        .search-channel-card { gap: 11px; padding: 14px; }
         .channel-hero { align-items: flex-start; }
         .hero-avatar { width: 59px; height: 59px; }
         .channel-hero h1 { font-size: 25px; }
@@ -309,7 +326,10 @@
         <button data-target="remove-channel">Remove channel</button>
         <button data-target="empty">Empty & error</button>
         <button data-target="videos">Video feed</button>
+        <button data-target="search-videos">Video search</button>
+        <button data-target="search-channels">Channel search</button>
         <button data-target="player">Player & fallback</button>
+        <button data-target="search-player">Search player</button>
       </div>
     </nav>
 
@@ -392,8 +412,20 @@
         <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><a class="back-link" href="#dashboard" data-nav="dashboard">← Back to My Channels</a><div class="channel-hero"><div class="hero-avatar">F</div><div><h1>Fireship</h1><p>@Fireship · Latest long-form uploads</p></div></div><div class="video-grid"><a class="video-card" href="#player" data-nav="player"><div class="video-thumb"><span class="duration">12:08</span></div><div class="video-info"><h3>The JavaScript features you are probably missing</h3><p>Fireship · 2 days ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb two"><span class="duration">8:41</span></div><div class="video-info"><h3>A practical guide to building less, better software</h3><p>Fireship · 1 week ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb three"><span class="duration">15:22</span></div><div class="video-info"><h3>Everything new in modern React, explained</h3><p>Fireship · 2 weeks ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb four"><span class="duration">9:03</span></div><div class="video-info"><h3>The cleanest way to structure a full-stack app</h3><p>Fireship · 3 weeks ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb five"><span class="duration">11:17</span></div><div class="video-info"><h3>Five browser APIs worth knowing about</h3><p>Fireship · 1 month ago</p></div></a><a class="video-card" href="#player" data-nav="player"><div class="video-thumb two"><span class="duration">7:45</span></div><div class="video-info"><h3>A better mental model for web performance</h3><p>Fireship · 1 month ago</p></div></a></div><div class="load-state"><span class="spinner"></span> Loading more videos</div></div></div>
       </section>
 
+      <section class="screen" id="search-videos">
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><div class="page-head"><div><div class="eyebrow">Discover</div><h1>Find videos worth watching.</h1><p class="muted">Search YouTube and play eligible long-form videos without adding their channels first.</p></div></div><div class="discover-tabs"><button class="btn active" type="button" data-nav="search-videos">Videos</button><button class="btn" type="button" data-nav="search-channels">Channels</button></div><label class="search-box discover-search"><span class="search-icon">⌕</span><input id="video-search" type="search" placeholder="Search videos, topics, or creators" value="modern React" /></label><p class="search-hint">Long-form videos only · Shorts, livestreams, unavailable videos, and videos under 2 minutes are hidden.</p><div class="video-grid" id="video-search-grid"><a class="video-card" href="#search-player" data-nav="search-player" data-search-video="react react compiler roadmap"><div class="video-thumb three"><span class="duration">18:32</span></div><div class="video-info"><h3>React in 2026: What actually changed</h3><p>Web Dev Simplified · 3 days ago</p></div></a><a class="video-card" href="#search-player" data-nav="search-player" data-search-video="react server components guide"><div class="video-thumb two"><span class="duration">12:46</span></div><div class="video-info"><h3>A practical guide to Server Components</h3><p>ByteByteGo · 6 days ago</p></div></a><a class="video-card" href="#search-player" data-nav="search-player" data-search-video="react performance patterns"><div class="video-thumb five"><span class="duration">9:14</span></div><div class="video-info"><h3>React performance patterns that hold up</h3><p>Jack Herrington · 1 week ago</p></div></a><a class="video-card" href="#search-player" data-nav="search-player" data-search-video="react state management"><div class="video-thumb four"><span class="duration">16:02</span></div><div class="video-info"><h3>State management after the hype</h3><p>Theo · 2 weeks ago</p></div></a><a class="video-card" href="#search-player" data-nav="search-player" data-search-video="react forms"><div class="video-thumb"><span class="duration">11:28</span></div><div class="video-info"><h3>Building forms users actually enjoy</h3><p>Fireship · 2 weeks ago</p></div></a><a class="video-card" href="#search-player" data-nav="search-player" data-search-video="react testing"><div class="video-thumb two"><span class="duration">14:39</span></div><div class="video-info"><h3>Testing a modern React application</h3><p>Kent C. Dodds · 3 weeks ago</p></div></a></div><div class="empty-state" id="video-search-empty" hidden><div class="empty-content"><div class="empty-graphic">⌕</div><h2>No eligible videos found.</h2><p>Try a broader search or a different topic.</p></div></div><div class="load-state"><span class="spinner"></span> Loading more results</div></div></div>
+      </section>
+
+      <section class="screen" id="search-channels">
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page"><div class="page-head"><div><div class="eyebrow">Discover</div><h1>Find your next creator.</h1><p class="muted">Search YouTube channels, compare their details, then add only the ones you want.</p></div></div><div class="discover-tabs"><button class="btn" type="button" data-nav="search-videos">Videos</button><button class="btn active" type="button" data-nav="search-channels">Channels</button></div><label class="search-box discover-search"><span class="search-icon">⌕</span><input id="channel-discovery-search" type="search" placeholder="Search channel names or @handles" value="frontend" /></label><p class="search-hint">Channel metrics are shown when YouTube makes them publicly available.</p><div class="search-channel-grid" id="channel-search-grid"><article class="search-channel-card" data-search-channel="fireship technology javascript"><div class="hero-avatar">F</div><div><h3>Fireship</h3><p class="handle">@Fireship</p><p class="channel-description">High-intensity code explanations and practical developer updates.</p><div class="channel-stats"><span><strong>3.7M</strong> subscribers</span><span><strong>630</strong> videos</span><span><strong>550M</strong> views</span></div><div class="result-actions"><span class="saved-indicator">✓ In your library</span><button class="btn btn-outline" type="button" disabled style="opacity:.55;cursor:default">Added</button></div></div></article><article class="search-channel-card" data-search-channel="frontend frontend masters web development"><div class="hero-avatar" style="background:linear-gradient(135deg,#7699d5,#22325d)">FM</div><div><h3>Frontend Masters</h3><p class="handle">@FrontendMasters</p><p class="channel-description">In-depth courses and talks for people building modern web products.</p><div class="channel-stats"><span><strong>420K</strong> subscribers</span><span><strong>1.2K</strong> videos</span><span><strong>28M</strong> views</span></div><div class="result-actions"><span class="subtle">Not yet saved</span><button class="btn btn-primary" type="button" data-discovery-add>Add to library</button></div></div></article><article class="search-channel-card" data-search-channel="frontend web development traversy media"><div class="hero-avatar" style="background:linear-gradient(135deg,#ca6dc2,#45295d)">TM</div><div><h3>Traversy Media</h3><p class="handle">@TraversyMedia</p><p class="channel-description">Clear web-development tutorials, crash courses, and project walkthroughs.</p><div class="channel-stats"><span><strong>2.4M</strong> subscribers</span><span><strong>1.1K</strong> videos</span><span><strong>370M</strong> views</span></div><div class="result-actions"><span class="subtle">Not yet saved</span><button class="btn btn-primary" type="button" data-discovery-add>Add to library</button></div></div></article><article class="search-channel-card" data-search-channel="frontend design course designcode"><div class="hero-avatar" style="background:linear-gradient(135deg,#e9d18d,#7a4c45)">DC</div><div><h3>DesignCode</h3><p class="handle">@designcodeio</p><p class="channel-description">Design and development lessons for polished product interfaces.</p><div class="channel-stats"><span><strong>310K</strong> subscribers</span><span><strong>480</strong> videos</span><span><strong>21M</strong> views</span></div><div class="result-actions"><span class="subtle">Not yet saved</span><button class="btn btn-primary" type="button" data-discovery-add>Add to library</button></div></div></article></div><div class="empty-state" id="channel-discovery-empty" hidden><div class="empty-content"><div class="empty-graphic">⌕</div><h2>No channels found.</h2><p>Try a creator name, topic, or exact handle.</p></div></div><div class="load-state"><span class="spinner"></span> Loading more channels</div></div></div>
+      </section>
+
       <section class="screen" id="player">
         <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page playback-layout"><a class="back-link" href="#videos" data-nav="videos">← Back to Fireship videos</a><div class="state-toggle"><button class="btn btn-primary" type="button" data-player-state="play">Player view</button><button class="btn btn-outline" type="button" data-player-state="blocked">Blocked playback</button></div><section id="player-ready"><div class="player-surface"><div class="player-brand"><span class="player-play">▶</span><span>Official YouTube player</span></div><span class="player-caption">YouTube controls remain visible here</span></div><div class="playback-meta"><div><div class="eyebrow">Fireship · 2 days ago</div><h1>The JavaScript features you are probably missing</h1><p>12:08 · Plays securely in SKTube through YouTube’s embedded player.</p></div><div class="playback-actions"><button class="btn btn-outline">↗ Open on YouTube</button></div></div></section><section id="player-blocked" class="fallback-panel" hidden><div class="empty-content"><div class="empty-graphic">▶</div><h2>This video can’t play here.</h2><p>YouTube does not allow this video to be embedded in SKTube. You can still watch it directly on YouTube.</p><button class="btn btn-primary">↗ Open on YouTube</button><p class="subtle" style="margin-top:17px;font-size:12px">Your channel library and video list remain unchanged.</p></div></section></div></div>
+      </section>
+
+      <section class="screen" id="search-player">
+        <div class="app-shell"><header class="app-header"><div class="app-brand"><span class="brand-mark">SK</span> SKTube</div><div class="account"><span>Suresh Konar</span><div class="avatar">SK</div></div></header><div class="page playback-layout"><a class="back-link" href="#search-videos" data-nav="search-videos">← Back to Video Search</a><div class="player-surface"><div class="player-brand"><span class="player-play">▶</span><span>Official YouTube player</span></div><span class="player-caption">YouTube controls remain visible here</span></div><div class="playback-meta"><div><div class="eyebrow">From Discover · Web Dev Simplified · 3 days ago</div><h1>React in 2026: What actually changed</h1><p>18:32 · This channel is not in your library. You can still watch this eligible result in SKTube.</p></div><div class="playback-actions"><button class="btn btn-outline">↗ Open on YouTube</button></div></div><div class="notice" style="margin-top:24px"><span>✓</span><span>Search playback is available to signed-in users, even when the video’s channel has not been added to SKTube.</span></div></div></div>
       </section>
     </main>
     <div class="flow-note">Design reference · MVP flows</div>
@@ -420,6 +452,37 @@
         });
         searchEmpty.hidden = count !== 0;
       });
+      function filterDiscovery(inputId, cardSelector, emptyId, dataKey) {
+        const input = document.querySelector(inputId);
+        const resultCards = document.querySelectorAll(cardSelector);
+        const emptyState = document.querySelector(emptyId);
+        input?.addEventListener('input', () => {
+          const query = input.value.trim().toLowerCase();
+          let count = 0;
+          resultCards.forEach((card) => {
+            const match = card.dataset[dataKey].includes(query);
+            card.hidden = !match;
+            if (match) count += 1;
+          });
+          emptyState.hidden = count !== 0;
+        });
+      }
+      filterDiscovery('#video-search', '[data-search-video]', '#video-search-empty', 'searchVideo');
+      filterDiscovery('#channel-discovery-search', '[data-search-channel]', '#channel-discovery-empty', 'searchChannel');
+      document.querySelectorAll('[data-discovery-add]').forEach((button) => button.addEventListener('click', () => {
+        button.textContent = 'Added';
+        button.disabled = true;
+        button.classList.remove('btn-primary');
+        button.classList.add('btn-outline');
+        button.style.opacity = '.55';
+        button.style.cursor = 'default';
+        const status = button.parentElement.querySelector('.subtle');
+        if (status) {
+          status.textContent = '✓ In your library';
+          status.classList.remove('subtle');
+          status.classList.add('saved-indicator');
+        }
+      }));
       const playerReady = document.querySelector('#player-ready');
       const playerBlocked = document.querySelector('#player-blocked');
       document.querySelectorAll('[data-player-state]').forEach((button) => button.addEventListener('click', () => {

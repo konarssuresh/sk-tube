@@ -267,7 +267,34 @@ The MVP is complete when:
 
 ## 13. Future Scope
 
-Potential post-MVP improvements include:
+### v1.1 — Search & Discovery
+
+SKTube will add a protected Discover area with two separate pages. Search results are fetched directly from YouTube and are never stored automatically.
+
+#### Video Search
+
+- Provide a protected video-search page where users can search public YouTube videos, including videos from channels they have not saved.
+- Search results must use the same eligible-video rules as the channel feed: exclude unavailable videos, live streams, and videos shorter than two minutes.
+- Each result shows thumbnail, title, channel title, published date, and duration.
+- Results load progressively with infinite scrolling.
+- Selecting a result opens the same SKTube embedded-player experience.
+- A searched video must not require that its channel exists in the user’s library. It must still be validated server-side against current YouTube data before playback.
+- Every searched video playback page includes the existing visible “Open on YouTube” fallback.
+
+#### Channel Search
+
+- Provide a protected channel-search page where users can search public YouTube channels by name or `@handle`.
+- Each result shows the channel avatar, title, handle when available, description excerpt, subscriber count when publicly available, total video count, and total view count when available.
+- Clearly indicate when the current user has already saved a channel.
+- Let the user add a discovered channel directly from search results using the established duplicate-safe saved-channel flow.
+- Do not automatically save search-result channels or retain the user’s searches in v1.1.
+
+#### Discover navigation and responsive behavior
+
+- Add a Discover navigation destination with separate Video Search and Channel Search views.
+- On small screens, both views must remain easy to switch between and results must retain usable touch targets.
+
+### Later potential improvements
 
 - Channel folders, tags, and custom sorting.
 - Favorites, watch later, and personal video notes.
@@ -276,6 +303,5 @@ Potential post-MVP improvements include:
 - Caching and background refresh strategies.
 - YouTube account import.
 - Playlist support.
-- Video search across saved channels.
 - Shared or collaborative channel libraries.
 - Channel analytics and upload schedules.
