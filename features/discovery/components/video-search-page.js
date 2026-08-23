@@ -1,30 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/shared/page-header";
-import { DiscoverSearchInput } from "@/features/discovery/components/discover-search-input";
+import { DiscoverSearchForm } from "@/features/discovery/components/discover-search-form";
 import { DiscoverTabs } from "@/features/discovery/components/discover-tabs";
 import { ProtectedNav } from "@/components/shared/protected-nav";
 import { VideoSearchResults } from "@/features/discovery/components/video-search-results";
 import { LogoutButton } from "@/features/auth/components/logout-button";
-
-const SEARCH_DEBOUNCE_MS = 300;
+import { useSearchVideos } from "@/features/discovery/hooks/use-search-videos";
 
 export function VideoSearchPage() {
   const [inputValue, setInputValue] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const { isLoading: isSearching } = useSearchVideos(submittedQuery);
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedQuery(inputValue);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [inputValue]);
+  function handleSubmit(event) {
+    event.preventDefault();
+    setSubmittedQuery(inputValue.trim());
+  }
 
   return (
     <>
@@ -48,20 +43,22 @@ export function VideoSearchPage() {
 
       <DiscoverTabs className="mb-8" />
 
-      <DiscoverSearchInput
+      <DiscoverSearchForm
         value={inputValue}
         onChange={(event) => setInputValue(event.target.value)}
+        onSubmit={handleSubmit}
         placeholder="Search videos, topics, or creators"
         ariaLabel="Search videos"
+        isSearching={isSearching}
         className="mb-2"
       />
 
       <p className="mb-8 text-[13px] text-subtle">
         Long-form videos only · Shorts, livestreams, unavailable videos, and
-        videos under 3 minutes are hidden.
+        videos under 3 minutes are hidden · Up to 10 results per search
       </p>
 
-      <VideoSearchResults query={debouncedQuery} />
+      <VideoSearchResults query={submittedQuery} />
     </>
   );
 }

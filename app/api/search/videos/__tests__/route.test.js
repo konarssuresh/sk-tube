@@ -60,7 +60,7 @@ describe("GET /api/search/videos", () => {
 
     mockFetchSearchEligibleVideos.mockResolvedValue({
       videos,
-      nextCursor: "next-page",
+      nextCursor: null,
     });
 
     const response = await GET(
@@ -71,48 +71,21 @@ describe("GET /api/search/videos", () => {
     expect(response.status).toBe(200);
     expect(mockFetchSearchEligibleVideos).toHaveBeenCalledWith({
       query: "react",
-      pageToken: undefined,
     });
     expect(payload).toEqual({
       videos,
-      nextCursor: "next-page",
-    });
-  });
-
-  it("passes the cursor query param through to the YouTube client", async () => {
-    const { GET } = await import("@/app/api/search/videos/route");
-
-    mockFetchSearchEligibleVideos.mockResolvedValue({
-      videos,
       nextCursor: null,
     });
-
-    await GET(
-      new Request(
-        "http://localhost:3000/api/search/videos?q=react&cursor=next-page",
-      ),
-    );
-
-    expect(mockFetchSearchEligibleVideos).toHaveBeenCalledWith({
-      query: "react",
-      pageToken: "next-page",
-    });
   });
 
-  it("rejects empty queries and blank cursors", async () => {
+  it("rejects empty queries", async () => {
     const { GET } = await import("@/app/api/search/videos/route");
 
     const emptyQueryResponse = await GET(
       new Request("http://localhost:3000/api/search/videos?q=%20%20"),
     );
-    const blankCursorResponse = await GET(
-      new Request(
-        "http://localhost:3000/api/search/videos?q=react&cursor=%20%20",
-      ),
-    );
 
     expect(emptyQueryResponse.status).toBe(400);
-    expect(blankCursorResponse.status).toBe(400);
     expect(mockFetchSearchEligibleVideos).not.toHaveBeenCalled();
   });
 });

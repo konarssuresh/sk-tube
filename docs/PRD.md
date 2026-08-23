@@ -276,8 +276,8 @@ SKTube adds a protected Discover area with two separate pages. Search results ar
 - Provide a protected video-search page where users can search public YouTube videos, including videos from channels they have not saved.
 - Search results must use the same eligible-video rules as the channel feed: exclude unavailable videos, live streams, and videos shorter than three minutes.
 - Each result shows thumbnail, title, channel title, published date, and duration.
-- Results load progressively with infinite scrolling.
-- Results are ordered by view count, highest first.
+- Users submit a search explicitly with a Search button; results are not fetched while typing.
+- Return up to 10 eligible videos per search, ordered by view count, highest first.
 - Selecting a result opens the same SKTube embedded-player experience.
 - A searched video must not require that its channel exists in the user’s library. It must still be validated server-side against current YouTube data before playback.
 - Every searched video playback page includes the existing visible “Open on YouTube” fallback.
@@ -286,7 +286,8 @@ SKTube adds a protected Discover area with two separate pages. Search results ar
 
 - Provide a protected channel-search page where users can search public YouTube channels by name or `@handle`.
 - Each result shows the channel avatar, title, handle when available, description excerpt, subscriber count when publicly available, total video count, and total view count when available.
-- Results are ordered by total video count, highest first. When channels have the same video count, more relevant matches appear first.
+- Users submit a search explicitly with a Search button; results are not fetched while typing.
+- Return up to 5 channels per search, ordered by total video count, highest first. When channels have the same video count, more relevant matches appear first.
 - Clearly indicate when the current user has already saved a channel.
 - Let the user add a discovered channel directly from search results using the established duplicate-safe saved-channel flow.
 - Do not automatically save search-result channels or retain the user’s searches in v1.1.

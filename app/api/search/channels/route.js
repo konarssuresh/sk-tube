@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { parseSearchCursor, parseSearchQuery } from "@/features/discovery/schemas";
+import { parseSearchQuery } from "@/features/discovery/schemas";
 import { handleRoute } from "@/lib/api/handle-route-error";
 import { requireCurrentUser } from "@/lib/auth/require-current-user";
 import { connectDB } from "@/lib/db";
@@ -12,11 +12,9 @@ export async function GET(request) {
     const user = await requireCurrentUser();
     const { searchParams } = new URL(request.url);
     const query = parseSearchQuery(searchParams.get("q"));
-    const cursor = parseSearchCursor(searchParams.get("cursor"));
 
     const { channels, nextCursor } = await fetchSearchChannels({
       query,
-      pageToken: cursor,
     });
 
     if (channels.length === 0) {

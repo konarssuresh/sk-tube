@@ -1,30 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { ChannelSearchResults } from "@/features/discovery/components/channel-search-results";
 import { DiscoverTabs } from "@/features/discovery/components/discover-tabs";
-import { DiscoverSearchInput } from "@/features/discovery/components/discover-search-input";
+import { DiscoverSearchForm } from "@/features/discovery/components/discover-search-form";
 import { ProtectedNav } from "@/components/shared/protected-nav";
 import { LogoutButton } from "@/features/auth/components/logout-button";
-
-const SEARCH_DEBOUNCE_MS = 300;
+import { useSearchChannels } from "@/features/discovery/hooks/use-search-channels";
 
 export function ChannelSearchPage() {
   const [inputValue, setInputValue] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const { isLoading: isSearching } = useSearchChannels(submittedQuery);
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedQuery(inputValue);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [inputValue]);
+  function handleSubmit(event) {
+    event.preventDefault();
+    setSubmittedQuery(inputValue.trim());
+  }
 
   return (
     <>
@@ -48,19 +43,22 @@ export function ChannelSearchPage() {
 
       <DiscoverTabs className="mb-8" />
 
-      <DiscoverSearchInput
+      <DiscoverSearchForm
         value={inputValue}
         onChange={(event) => setInputValue(event.target.value)}
+        onSubmit={handleSubmit}
         placeholder="Search channel names or @handles"
         ariaLabel="Search channels"
+        isSearching={isSearching}
         className="mb-2"
       />
 
       <p className="mb-8 text-[13px] text-subtle">
-        Channel metrics are shown when YouTube makes them publicly available.
+        Channel metrics are shown when YouTube makes them publicly available ·
+        Up to 5 channels per search
       </p>
 
-      <ChannelSearchResults query={debouncedQuery} />
+      <ChannelSearchResults query={submittedQuery} />
     </>
   );
 }

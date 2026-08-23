@@ -59,7 +59,7 @@ describe("GET /api/search/channels", () => {
     });
     mockFetchSearchChannels.mockResolvedValue({
       channels,
-      nextCursor: "next-page",
+      nextCursor: null,
     });
     mockSavedChannelFind.mockReturnValue({
       select: vi.fn().mockReturnValue({
@@ -110,23 +110,20 @@ describe("GET /api/search/channels", () => {
       { ...channels[0], isSaved: true },
       { ...channels[1], isSaved: false },
     ]);
-    expect(payload.nextCursor).toBe("next-page");
+    expect(payload.nextCursor).toBeNull();
+    expect(mockFetchSearchChannels).toHaveBeenCalledWith({
+      query: "frontend",
+    });
   });
 
-  it("rejects empty queries and blank cursors", async () => {
+  it("rejects empty queries", async () => {
     const { GET } = await import("@/app/api/search/channels/route");
 
     const emptyQueryResponse = await GET(
       new Request("http://localhost:3000/api/search/channels?q=%20%20"),
     );
-    const blankCursorResponse = await GET(
-      new Request(
-        "http://localhost:3000/api/search/channels?q=frontend&cursor=%20%20",
-      ),
-    );
 
     expect(emptyQueryResponse.status).toBe(400);
-    expect(blankCursorResponse.status).toBe(400);
     expect(mockFetchSearchChannels).not.toHaveBeenCalled();
   });
 });

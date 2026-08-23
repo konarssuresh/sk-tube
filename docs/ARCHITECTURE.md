@@ -352,7 +352,8 @@ Rules:
 - Query keys live in `features/<feature>/query-keys.js`.
 - Use `useQuery` for saved-channel reads.
 - Use `useMutation` for Server Action calls and Route Handler mutations, then invalidate the affected query keys.
-- Use `useInfiniteQuery` for paginated video lists: the saved-channel video feed, video-search results, and the unified Home feed.
+- Use `useInfiniteQuery` for paginated video lists: the saved-channel video feed and the unified Home feed.
+- Use `useQuery` for discovery search results, which load only after the user submits a search.
 - React Hook Form owns local form field state only; mutation lifecycle (`isPending`, `error`, `onSuccess`) comes from React Query.
 - Do not duplicate query results into Zustand.
 - Keep fetch functions and query hooks inside the feature that owns them.
@@ -380,8 +381,8 @@ Use Route Handlers for authentication and data accessed by client-side React Que
 - `GET /api/channels/[channelId]/videos?cursor=`: current eligible YouTube videos for one saved channel.
 - `GET /api/feed/videos?cursor=&channelIds=&publishedAfter=&minDurationSeconds=&maxDurationSeconds=`: authenticated merged Home feed across the user’s saved channels.
 - `PATCH /api/feed/visit`: authenticated update of the user’s `feedLastVisitedAt` timestamp when leaving Home.
-- `GET /api/search/videos?q=&cursor=`: authenticated, paginated public-video search.
-- `GET /api/search/channels?q=&cursor=`: authenticated, paginated public-channel search.
+- `GET /api/search/videos?q=`: authenticated public-video search (one `search.list` call per request).
+- `GET /api/search/channels?q=`: authenticated public-channel search (one `search.list` call per request).
 
 Route Handlers must validate parameters, authenticate the request, verify ownership whenever a saved resource is accessed, and return an explicit JSON response shape. They must not expose database documents or raw YouTube responses directly.
 
@@ -442,12 +443,13 @@ Feed playback routes through the existing saved-channel video page for the video
 
 ### Discovery search
 
-Discovery requests are protected by `requireCurrentUser()` but do not read or write the user’s saved-channel records unless the user explicitly chooses to add a channel.
+Discovery requests are protected by `requireCurrentUser()` but do not read or write the user’s saved-channel records unless the user explicitly chooses to add a channel. Each submitted search costs one YouTube `search.list` call against the project’s daily search-query cap.
 
-- `GET /api/search/videos` validates a non-empty query and opaque cursor, calls YouTube search for video results with `order=viewCount`, retrieves video details in batches, applies the shared eligibility filter, and returns only mapped SKTube fields plus the next cursor. Eligibility filtering preserves relative view-count order.
-- `GET /api/search/channels` validates a non-empty query and opaque cursor, calls YouTube search for channel results with `order=videoCount`, retrieves channel statistics/details in batches, maps results in `search.list` order so video-count ranking and relevance tiebreaking are preserved across paginated pages, and returns only the fields needed for channel-result cards.
+- `GET /api/search/videos` validates a non-empty query, calls YouTube search once with `order=viewCount` and `maxResults=10`, retrieves video details in one batch, applies the shared eligibility filter, and returns only mapped SKTube fields. Eligibility filtering preserves relative view-count order within that result set.
+- `GET /api/search/channels` validates a non-empty query, calls YouTube search once with `order=videoCount` and `maxResults=5`, retrieves channel statistics/details in one batch, maps results in `search.list` order, and returns only the fields needed for channel-result cards.
+- The Discover UI uses an explicit Search button on both tabs; typing alone does not trigger API calls.
 - Channel statistics must be treated as optional display data because YouTube may not expose every metric for every channel.
-- Search input, result pages, cursors, and result metadata remain in browser memory only. Do not persist search history or search results in MongoDB.
+- Search input, result pages, and result metadata remain in browser memory only. Do not persist search history or search results in MongoDB.
 - Adding a discovered channel reuses the existing canonical-ID duplicate check and saved-channel mutation; it must not create a separate persistence path.
 
 ### Eligibility filter

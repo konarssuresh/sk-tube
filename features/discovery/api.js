@@ -14,22 +14,14 @@ async function getJson(url) {
   return payload;
 }
 
-export async function fetchSearchVideos(query, cursor) {
+export async function fetchSearchVideos(query) {
   const searchParams = new URLSearchParams({ q: query });
-
-  if (cursor) {
-    searchParams.set("cursor", cursor);
-  }
 
   return getJson(`/api/search/videos?${searchParams.toString()}`);
 }
 
-export async function fetchSearchChannels(query, cursor) {
+export async function fetchSearchChannels(query) {
   const searchParams = new URLSearchParams({ q: query });
-
-  if (cursor) {
-    searchParams.set("cursor", cursor);
-  }
 
   return getJson(`/api/search/channels?${searchParams.toString()}`);
 }

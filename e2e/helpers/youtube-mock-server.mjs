@@ -12,10 +12,9 @@ const PAGE_ONE_IDS = Array.from(
 );
 const PAGE_TWO_IDS = ["e2e-video-50"];
 const SEARCH_PAGE_ONE_IDS = Array.from(
-  { length: 50 },
+  { length: 10 },
   (_, index) => `e2e-search-${index}`,
 );
-const SEARCH_PAGE_TWO_IDS = ["e2e-search-50"];
 const INELIGIBLE_SEARCH_VIDEO_ID = "e2e-search-short";
 
 function sendJson(response, body) {
@@ -100,22 +99,13 @@ export function startYouTubeMock() {
 
     if (endpoint === "search") {
       const type = url.searchParams.get("type");
-      const pageToken = url.searchParams.get("pageToken");
 
       if (type === "video") {
-        if (pageToken === "search-page-2") {
-          sendJson(response, {
-            items: searchItems(SEARCH_PAGE_TWO_IDS, "videoId"),
-          });
-          return;
-        }
-
         sendJson(response, {
           items: searchItems(
             [...SEARCH_PAGE_ONE_IDS, INELIGIBLE_SEARCH_VIDEO_ID],
             "videoId",
           ),
-          nextPageToken: "search-page-2",
         });
         return;
       }

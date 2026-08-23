@@ -3,33 +3,21 @@ import { test, expect } from "@playwright/test";
 import { registerViaApi } from "./helpers/auth.js";
 
 test.describe("discovery search", () => {
-  test("searches videos, scrolls results, and plays a searched video", async ({
-    page,
-  }) => {
+  test("searches videos and plays a searched video", async ({ page }) => {
     await registerViaApi(page);
     await page.goto("/search/videos");
 
     await page.getByLabel("Search videos").fill("modern react");
+    await page.getByRole("button", { name: "Search" }).click();
     await expect(
       page.getByRole("heading", { name: "Eligible e2e-search-0" }),
     ).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.getByRole("heading", { name: "Eligible e2e-search-49" }),
+      page.getByRole("heading", { name: "Eligible e2e-search-9" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Eligible e2e-search-50" }),
+      page.getByRole("heading", { name: "Eligible e2e-search-10" }),
     ).toHaveCount(0);
-
-    await page
-      .getByRole("heading", { name: "Eligible e2e-search-49" })
-      .scrollIntoViewIfNeeded();
-
-    await expect(
-      page.getByRole("heading", { name: "Eligible e2e-search-50" }),
-    ).toBeVisible({ timeout: 15_000 });
-    await expect(
-      page.getByText("You've reached the end of available results."),
-    ).toBeVisible();
 
     await page.getByRole("link", { name: "Eligible e2e-search-0" }).click();
     await page.waitForURL("**/search/videos/e2e-search-0");
@@ -61,6 +49,7 @@ test.describe("discovery search", () => {
     await page.goto("/search/channels");
 
     await page.getByLabel("Search channels").fill("frontend");
+    await page.getByRole("button", { name: "Search" }).click();
     const frontendMastersCard = page
       .locator("article")
       .filter({ hasText: "Frontend Masters" });

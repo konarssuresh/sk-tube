@@ -352,30 +352,31 @@ Let authenticated users discover public YouTube videos and channels without auto
 
 - Add protected Discover navigation with distinct Video Search and Channel Search pages.
 - Create `features/discovery/` with its own schemas, API functions, query keys, hooks, and focused components; reuse existing video-card, channel-card, loading, error, and add-channel primitives where their behavior matches.
-- Add `GET /api/search/videos?q=&cursor=`:
+- Add `GET /api/search/videos?q=`:
   - require an authenticated user but do not require a saved channel;
-  - validate a non-empty query and opaque cursor;
-  - use YouTube video search with `order=viewCount`, retrieve details in batches, and reuse the shared video eligibility filter;
-  - return mapped result data only and a next cursor.
-- Use `useInfiniteQuery` for video-search results and retain no search data beyond normal in-memory browser state.
-- Display video thumbnail, title, channel title, duration, and published date, plus loading, retry, empty, and end-of-results states.
+  - validate a non-empty query;
+  - use one YouTube video search with `order=viewCount` and `maxResults=10`, retrieve details in one batch, and reuse the shared video eligibility filter;
+  - return mapped result data only.
+- Use `useQuery` for video-search results, triggered only when the user submits a search, and retain no search data beyond normal in-memory browser state.
+- Display video thumbnail, title, channel title, duration, and published date, plus loading, retry, and empty states.
 - Navigate a selected search result to `/search/videos/[videoId]` and reuse `YoutubePlayer`, its current-data validation, embed checks, and “Open on YouTube” fallback. Do not apply saved-channel ownership validation to this route.
-- Add `GET /api/search/channels?q=&cursor=`:
+- Add `GET /api/search/channels?q=`:
   - require an authenticated user;
-  - search YouTube channels with `order=videoCount`, retrieve safe detail/statistics fields in batches, and preserve `search.list` order when mapping results so relevance remains the tiebreaker for equal video counts;
+  - search YouTube channels once with `order=videoCount` and `maxResults=5`, retrieve safe detail/statistics fields in one batch, and preserve `search.list` order when mapping results;
   - return avatar, title, handle when available, description excerpt, and available subscriber, video, and view counts.
+- Add explicit Search buttons on both Discover tabs so API calls happen only on submit.
 - Build channel-result cards that indicate whether the channel is already saved by the current user.
 - Let a user add a discovered channel through the existing canonical-ID duplicate-safe add-channel mutation; do not create a second SavedChannel write path.
 - Keep search terms, results, and history out of MongoDB. Do not add background search indexing or caching.
-- Add unit tests for discovery input/cursor validation and result mapping; add integration tests for authentication, eligibility filtering, and duplicate-safe discovered-channel addition; add end-to-end coverage for both search pages and searched-video playback.
+- Add unit tests for discovery input validation and result mapping; add integration tests for authentication, eligibility filtering, and duplicate-safe discovered-channel addition; add end-to-end coverage for both search pages and searched-video playback.
 
 ### Completion Criteria
 
-- Authenticated users can search and infinitely scroll eligible public video results.
-- Video search results appear in descending view-count order.
+- Authenticated users can search eligible public video results with an explicit Search action.
+- Video search returns up to 10 eligible results in descending view-count order.
 - A searched video plays through the same embedded-player experience even when its channel is not saved.
 - The searched-video player rejects invalid, unavailable, or ineligible videos and exposes the normal YouTube fallback for blocked embedding.
-- Authenticated users can search public channel results and see supported channel details.
+- Authenticated users can search public channel results and see up to 5 channels per search.
 - Channel search results appear in descending video-count order, with relevance as the tiebreaker.
 - Users can add a discovered channel once, with correct already-saved feedback and no duplicate records.
 - Search data is never persisted in MongoDB, and API keys/raw YouTube responses never reach the browser.
