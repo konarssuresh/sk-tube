@@ -11,7 +11,13 @@ import {
   parseIso8601Duration,
 } from "@/features/videos/utils";
 
-export function SearchVideoPlaybackPage({ video, channelTitle, appOrigin }) {
+export function SearchVideoPlaybackPage({
+  video,
+  channelTitle,
+  appOrigin,
+  backHref,
+  backLabel,
+}) {
   const durationLabel = formatVideoDuration(
     parseIso8601Duration(video.duration),
   );
@@ -22,10 +28,10 @@ export function SearchVideoPlaybackPage({ video, channelTitle, appOrigin }) {
     <PageContainer className="mx-auto max-w-[900px] px-0 sm:px-5">
       <div className="px-5 sm:px-0">
         <Link
-          href="/search/videos"
+          href={backHref}
           className="mb-6 inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
         >
-          ← Back to Video Search
+          {backLabel}
         </Link>
       </div>
 

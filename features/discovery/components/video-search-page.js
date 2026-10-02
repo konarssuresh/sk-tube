@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { DiscoverSearchForm } from "@/features/discovery/components/discover-search-form";
@@ -11,14 +12,39 @@ import { VideoSearchResults } from "@/features/discovery/components/video-search
 import { LogoutButton } from "@/features/auth/components/logout-button";
 import { useSearchVideos } from "@/features/discovery/hooks/use-search-videos";
 
+function readSearchQueryFromParams(searchParams) {
+  const value = searchParams.get("q");
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export function VideoSearchPage() {
-  const [inputValue, setInputValue] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const queryFromUrl = readSearchQueryFromParams(searchParams);
+  const [inputValue, setInputValue] = useState(queryFromUrl);
+  const [submittedQuery, setSubmittedQuery] = useState(queryFromUrl);
   const { isLoading: isSearching } = useSearchVideos(submittedQuery);
+
+  useEffect(() => {
+    setInputValue(queryFromUrl);
+    setSubmittedQuery(queryFromUrl);
+  }, [queryFromUrl]);
 
   function handleSubmit(event) {
     event.preventDefault();
-    setSubmittedQuery(inputValue.trim());
+    const trimmedQuery = inputValue.trim();
+    setSubmittedQuery(trimmedQuery);
+
+    const nextParams = new URLSearchParams();
+    if (trimmedQuery) {
+      nextParams.set("q", trimmedQuery);
+    }
+
+    const nextUrl = nextParams.toString()
+      ? `${pathname}?${nextParams.toString()}`
+      : pathname;
+    router.replace(nextUrl, { scroll: false });
   }
 
   return (

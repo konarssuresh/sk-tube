@@ -1,4 +1,8 @@
 import { VideoCard } from "@/features/videos/components/video-card";
+import {
+  appendPlaybackReturnFrom,
+  appendSearchQueryToHref,
+} from "@/features/videos/playback-back-link";
 import { cn } from "@/lib/utils";
 
 export function VideoFeedGrid({
@@ -7,6 +11,7 @@ export function VideoFeedGrid({
   channelTitle,
   variant,
   feedLastVisitedAt,
+  searchQuery,
   className,
   ...props
 }) {
@@ -30,7 +35,20 @@ export function VideoFeedGrid({
               isSearch ? undefined : isFeed ? video.channelTitle : channelTitle
             }
             playbackHref={
-              isSearch ? `/search/videos/${video.videoId}` : undefined
+              isSearch
+                ? appendSearchQueryToHref(
+                    `/search/videos/${video.videoId}`,
+                    searchQuery,
+                  )
+                : isFeed
+                  ? appendPlaybackReturnFrom(
+                      `/channels/${video.channelId}/videos/${video.videoId}`,
+                      "home",
+                    )
+                  : appendPlaybackReturnFrom(
+                      `/channels/${channelId}/videos/${video.videoId}`,
+                      "channel",
+                    )
             }
             showNewBadge={
               isFeed

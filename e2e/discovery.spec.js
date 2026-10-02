@@ -32,6 +32,14 @@ test.describe("discovery search", () => {
     await expect(
       page.getByText("This channel is not in your library."),
     ).toBeVisible();
+    await expect(page).toHaveURL(/q=modern(\+|%20)react/);
+
+    await page.getByRole("link", { name: "← Back to Video Search" }).click();
+    await page.waitForURL(/\/search\/videos\?q=modern(\+|%20)react/);
+    await expect(
+      page.getByRole("heading", { name: "Eligible e2e-search-0" }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Search videos")).toHaveValue("modern react");
   });
 
   test("rejects ineligible searched videos", async ({ page }) => {

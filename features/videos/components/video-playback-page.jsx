@@ -11,7 +11,13 @@ import {
   parseIso8601Duration,
 } from "@/features/videos/utils";
 
-export function VideoPlaybackPage({ channel, video, appOrigin }) {
+export function VideoPlaybackPage({
+  channel,
+  video,
+  appOrigin,
+  backHref,
+  backLabel,
+}) {
   const durationLabel = formatVideoDuration(
     parseIso8601Duration(video.duration),
   );
@@ -22,10 +28,10 @@ export function VideoPlaybackPage({ channel, video, appOrigin }) {
     <PageContainer className="mx-auto max-w-[900px] px-0 sm:px-5">
       <div className="px-5 sm:px-0">
         <Link
-          href={`/channels/${channel.id}`}
+          href={backHref}
           className="mb-6 inline-flex text-sm text-muted no-underline transition-colors hover:text-foreground"
         >
-          ← Back to {channel.title} videos
+          {backLabel}
         </Link>
       </div>
 

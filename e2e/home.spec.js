@@ -28,6 +28,12 @@ test.describe("home feed", () => {
     await expect(
       page.locator('iframe[src*="youtube-nocookie.com/embed/e2e-video-0"]'),
     ).toBeVisible();
+
+    await page.getByRole("link", { name: "← Back to Home" }).click();
+    await page.waitForURL("**/home");
+    await expect(
+      page.getByRole("heading", { name: "Latest from your channels" }),
+    ).toBeVisible();
   });
 
   test("shows empty library state without saved channels", async ({ page }) => {

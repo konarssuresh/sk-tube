@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { SearchVideoPlaybackPage } from "@/features/discovery/components/search-video-playback-page";
+import { buildSearchVideosPageHref } from "@/features/videos/playback-back-link";
 import { loadSearchVideo } from "@/features/videos/services/load-search-video";
 import { getEnv } from "@/lib/env";
 import { requireCurrentUser } from "@/lib/auth/require-current-user";
@@ -37,17 +38,22 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function SearchVideoPlaybackRoute({ params }) {
+export default async function SearchVideoPlaybackRoute({ params, searchParams }) {
   await requireCurrentUser();
   const { videoId } = await params;
+  const { q } = await searchParams;
+  const searchQuery = typeof q === "string" ? q : "";
   const { video, channelTitle } = await getPlaybackData(videoId);
   const { NEXT_PUBLIC_APP_URL } = getEnv();
+  const backHref = buildSearchVideosPageHref(searchQuery);
 
   return (
     <SearchVideoPlaybackPage
       video={video}
       channelTitle={channelTitle}
       appOrigin={NEXT_PUBLIC_APP_URL}
+      backHref={backHref}
+      backLabel="← Back to Video Search"
     />
   );
 }

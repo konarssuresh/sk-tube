@@ -49,6 +49,12 @@ test.describe("channel videos", () => {
     await expect(page.locator('iframe[src*="autoplay=1"]')).toBeVisible();
     await expect(page.getByRole("link", { name: "Open on YouTube" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Eligible e2e-video-0" })).toBeVisible();
+
+    await page.getByRole("link", { name: /Back to Fireship videos/ }).click();
+    await page.waitForURL(/\/channels\/[^/]+$/);
+    await expect(
+      page.getByRole("heading", { name: "Eligible e2e-video-0" }),
+    ).toBeVisible();
   });
 
   test("shows fallback UI for non-embeddable videos", async ({ page }) => {

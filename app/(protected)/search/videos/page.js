@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { requireCurrentUser } from "@/lib/auth/require-current-user";
 import { PageContainer } from "@/components/shared/page-container";
 import { VideoSearchPage } from "@/features/discovery/components/video-search-page";
@@ -11,7 +13,9 @@ export default async function VideoSearchRoute() {
 
   return (
     <PageContainer>
-      <VideoSearchPage />
+      <Suspense fallback={null}>
+        <VideoSearchPage />
+      </Suspense>
     </PageContainer>
   );
 }
