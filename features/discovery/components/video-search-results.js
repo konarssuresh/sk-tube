@@ -40,5 +40,7 @@ export function VideoSearchResults({ query }) {
     );
   }
 
-  return <VideoFeedGrid videos={videos} variant="search" />;
+  return (
+    <VideoFeedGrid videos={videos} variant="search" searchQuery={query} />
+  );
 }
