@@ -12,41 +12,42 @@ export function resolvePlayerOrigin(appOrigin) {
   return appOrigin;
 }
 
-export function shouldUseMutedAutoplay({
-  userAgent = "",
-  coarsePointer = false,
-  narrowViewport = false,
-} = {}) {
-  const isMobileUserAgent = /iPhone|iPad|iPod|Android/i.test(userAgent);
-
-  return isMobileUserAgent || coarsePointer || narrowViewport;
-}
-
-export function isInstalledPwa() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true
-  );
-}
-
-export function shouldUseNativeYoutubeEmbed({
+export function shouldUseConservativePlayback({
   userAgent = "",
   coarsePointer = false,
   narrowViewport = false,
   installedPwa = false,
 } = {}) {
+  const isMobileUserAgent = /iPhone|iPad|iPod|Android/i.test(userAgent);
+
   return (
     installedPwa ||
-    shouldUseMutedAutoplay({
-      userAgent,
-      coarsePointer,
-      narrowViewport,
-    })
+    isMobileUserAgent ||
+    coarsePointer ||
+    narrowViewport
   );
+}
+
+/** @deprecated Use shouldUseConservativePlayback */
+export function shouldUseMutedAutoplay(options) {
+  return shouldUseConservativePlayback(options);
+}
+
+export function readYoutubeEmbedPreferences() {
+  if (typeof window === "undefined") {
+    return { useConservativePlayback: true };
+  }
+
+  return {
+    useConservativePlayback: shouldUseConservativePlayback({
+      userAgent: window.navigator.userAgent,
+      coarsePointer: window.matchMedia("(pointer: coarse)").matches,
+      narrowViewport: window.matchMedia("(max-width: 639px)").matches,
+      installedPwa:
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true,
+    }),
+  };
 }
 
 export function getYoutubePlayerVars({ appOrigin, useMutedAutoplay = false }) {
@@ -60,23 +61,34 @@ export function getYoutubePlayerVars({ appOrigin, useMutedAutoplay = false }) {
   };
 }
 
-export function getYoutubeEmbedParams({ appOrigin, useMutedAutoplay = false }) {
+export function getYoutubeEmbedParams({
+  appOrigin,
+  useConservativePlayback = false,
+}) {
   return {
-    autoplay: 1,
+    autoplay: useConservativePlayback ? 0 : 1,
     playsinline: 1,
     rel: 0,
     origin: appOrigin,
-    ...(useMutedAutoplay ? { mute: 1 } : {}),
   };
 }
 
 export function buildYoutubeEmbedUrl({
   videoId,
   appOrigin,
-  useMutedAutoplay = false,
+  useConservativePlayback = false,
+  /** @deprecated Use useConservativePlayback */
+  useMutedAutoplay,
 }) {
+  const conservative =
+    useConservativePlayback ||
+    (useMutedAutoplay !== undefined ? useMutedAutoplay : false);
+
   const url = new URL(`${YOUTUBE_NO_COOKIE_HOST}/embed/${videoId}`);
-  const playerVars = getYoutubeEmbedParams({ appOrigin, useMutedAutoplay });
+  const playerVars = getYoutubeEmbedParams({
+    appOrigin,
+    useConservativePlayback: conservative,
+  });
 
   for (const [key, value] of Object.entries(playerVars)) {
     url.searchParams.set(key, String(value));

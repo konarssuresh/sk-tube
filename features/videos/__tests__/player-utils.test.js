@@ -5,8 +5,8 @@ import {
   buildYoutubeWatchUrl,
   getYoutubePlayerVars,
   resolvePlayerOrigin,
+  shouldUseConservativePlayback,
   shouldUseMutedAutoplay,
-  shouldUseNativeYoutubeEmbed,
 } from "@/features/videos/player-utils";
 
 describe("player utils", () => {
@@ -16,7 +16,7 @@ describe("player utils", () => {
     );
   });
 
-  it("builds a privacy-enhanced embed URL with required params", () => {
+  it("builds a privacy-enhanced embed URL with autoplay on desktop", () => {
     const embedUrl = buildYoutubeEmbedUrl({
       videoId: "dQw4w9WgXcQ",
       appOrigin: "http://localhost:3000",
@@ -31,6 +31,16 @@ describe("player utils", () => {
     expect(url.searchParams.get("playsinline")).toBe("1");
     expect(url.searchParams.get("rel")).toBe("0");
     expect(url.searchParams.get("origin")).toBe("http://localhost:3000");
+  });
+
+  it("disables autoplay for conservative playback clients", () => {
+    const embedUrl = buildYoutubeEmbedUrl({
+      videoId: "dQw4w9WgXcQ",
+      appOrigin: "http://localhost:3000",
+      useConservativePlayback: true,
+    });
+
+    expect(new URL(embedUrl).searchParams.get("autoplay")).toBe("0");
   });
 
   it("includes mute in player vars when muted autoplay is requested", () => {
@@ -49,54 +59,39 @@ describe("player utils", () => {
     });
   });
 
-  it("detects mobile user agents for muted autoplay", () => {
+  it("detects mobile user agents for conservative playback", () => {
     expect(
-      shouldUseMutedAutoplay({
+      shouldUseConservativePlayback({
         userAgent:
           "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
       }),
     ).toBe(true);
 
     expect(
-      shouldUseMutedAutoplay({
+      shouldUseConservativePlayback({
         userAgent:
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
       }),
     ).toBe(false);
   });
 
-  it("adds mute to embed URLs when muted autoplay is requested", () => {
-    const embedUrl = buildYoutubeEmbedUrl({
-      videoId: "dQw4w9WgXcQ",
-      appOrigin: "http://localhost:3000",
-      useMutedAutoplay: true,
-    });
-
-    expect(new URL(embedUrl).searchParams.get("mute")).toBe("1");
-  });
-
-  it("prefers native embed on mobile and installed PWAs", () => {
+  it("treats installed PWAs as conservative playback clients", () => {
     expect(
-      shouldUseNativeYoutubeEmbed({
-        userAgent:
-          "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
-      }),
-    ).toBe(true);
-
-    expect(
-      shouldUseNativeYoutubeEmbed({
+      shouldUseConservativePlayback({
         installedPwa: true,
         userAgent:
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
       }),
     ).toBe(true);
+  });
 
+  it("keeps shouldUseMutedAutoplay as an alias", () => {
     expect(
-      shouldUseNativeYoutubeEmbed({
+      shouldUseMutedAutoplay({
         userAgent:
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+          "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("prefers the browser origin when available", () => {

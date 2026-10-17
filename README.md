@@ -31,18 +31,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Progressive Web App (PWA)
 
-SKTube can be installed from supported browsers (Add to Home Screen / Install app). The web app manifest lives at [`app/manifest.js`](app/manifest.js); Serwist serves the production service worker from `/serwist/sw.js`.
+SKTube can be installed from supported browsers (Add to Home Screen / Install app). The web app manifest lives at [`app/manifest.js`](app/manifest.js).
 
-**What works offline:** static assets and a dedicated offline page (`/~offline`) when a document navigation fails. **What does not:** sign-in, feeds, search, or YouTube playback—all of that still needs network access. API responses are never cached by the service worker.
+**Service worker:** SKTube does **not** register a service worker in production. On load, the app unregisters any legacy Serwist worker from earlier releases so YouTube embeds are not intercepted. Install metadata and icons remain; offline caching is intentionally disabled to keep playback reliable.
 
-**Local install testing:** the service worker is disabled during `npm run dev`. Use a production build instead:
-
-```bash
-npm run build
-npm start
-```
-
-Then open the app over HTTPS (for example `npx next dev --experimental-https` is only needed when testing install flows against `next dev`; `npm start` on localhost is enough for Application → Manifest / Service Workers in Chrome). Regenerate PNG icons from the logo with `node scripts/generate-pwa-icons.mjs` after changing [`public/sktube-logo.svg`](public/sktube-logo.svg).
+Regenerate PNG icons from the logo with `node scripts/generate-pwa-icons.mjs` after changing [`public/sktube-logo.svg`](public/sktube-logo.svg).
 
 ## Scripts
 

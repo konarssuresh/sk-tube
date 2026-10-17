@@ -84,7 +84,7 @@ Next.js server boundary
 
 The `proxy.js` guard improves navigation but is not the authorization boundary. Every protected Server Action and Route Handler must independently call `requireCurrentUser()` before accessing data.
 
-The production Serwist service worker precaches static build assets and may show `/~offline` when navigation fails; it does not authenticate users or replace `requireCurrentUser()`, and `/api/*` requests use `NetworkOnly` so session-backed JSON is not stored offline.
+SKTube ships a web app manifest for installability but does not register a service worker in production. The client unregisters any legacy Serwist worker on startup so YouTube embeds use direct network requests like the pre-PWA app.
 
 ## 5. Project Structure
 
