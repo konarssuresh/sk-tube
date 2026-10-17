@@ -93,6 +93,21 @@ describe("proxy", () => {
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
   });
 
+  it("does not redirect PWA assets to login", async () => {
+    const { proxy } = await import("@/proxy");
+
+    const manifestResponse = await proxy(createRequest("/manifest.webmanifest"));
+    const swResponse = await proxy(createRequest("/serwist/sw.js"));
+    const iconResponse = await proxy(createRequest("/icons/icon-192x192.png"));
+
+    expect(manifestResponse.status).toBe(200);
+    expect(manifestResponse.headers.get("location")).toBeNull();
+    expect(swResponse.status).toBe(200);
+    expect(swResponse.headers.get("location")).toBeNull();
+    expect(iconResponse.status).toBe(200);
+    expect(iconResponse.headers.get("location")).toBeNull();
+  });
+
   it("treats expired session cookies as unauthenticated", async () => {
     const { proxy } = await import("@/proxy");
     const secret = new TextEncoder().encode(VALID_ENV.SESSION_SECRET);

@@ -8,10 +8,26 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const APP_NAME = "SKTube";
+const APP_DESCRIPTION =
+  "Save YouTube channels and browse their latest long-form uploads in one calm place.";
+
 export const metadata = {
-  title: "SKTube",
-  description:
-    "Save YouTube channels and browse their latest long-form uploads in one calm place.",
+  applicationName: APP_NAME,
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
+  appleWebApp: {
+    capable: true,
+    title: APP_NAME,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#0b0b0f",
 };
 
 export default function RootLayout({ children }) {
