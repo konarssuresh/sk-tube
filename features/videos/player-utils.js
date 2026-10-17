@@ -22,6 +22,33 @@ export function shouldUseMutedAutoplay({
   return isMobileUserAgent || coarsePointer || narrowViewport;
 }
 
+export function isInstalledPwa() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+export function shouldUseNativeYoutubeEmbed({
+  userAgent = "",
+  coarsePointer = false,
+  narrowViewport = false,
+  installedPwa = false,
+} = {}) {
+  return (
+    installedPwa ||
+    shouldUseMutedAutoplay({
+      userAgent,
+      coarsePointer,
+      narrowViewport,
+    })
+  );
+}
+
 export function getYoutubePlayerVars({ appOrigin, useMutedAutoplay = false }) {
   return {
     autoplay: 1,
@@ -33,9 +60,23 @@ export function getYoutubePlayerVars({ appOrigin, useMutedAutoplay = false }) {
   };
 }
 
-export function buildYoutubeEmbedUrl({ videoId, appOrigin }) {
+export function getYoutubeEmbedParams({ appOrigin, useMutedAutoplay = false }) {
+  return {
+    autoplay: 1,
+    playsinline: 1,
+    rel: 0,
+    origin: appOrigin,
+    ...(useMutedAutoplay ? { mute: 1 } : {}),
+  };
+}
+
+export function buildYoutubeEmbedUrl({
+  videoId,
+  appOrigin,
+  useMutedAutoplay = false,
+}) {
   const url = new URL(`${YOUTUBE_NO_COOKIE_HOST}/embed/${videoId}`);
-  const playerVars = getYoutubePlayerVars({ appOrigin });
+  const playerVars = getYoutubeEmbedParams({ appOrigin, useMutedAutoplay });
 
   for (const [key, value] of Object.entries(playerVars)) {
     url.searchParams.set(key, String(value));
