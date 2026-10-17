@@ -35,6 +35,8 @@ SKTube can be installed from supported browsers (Add to Home Screen / Install ap
 
 **Service worker:** SKTube does **not** register a service worker in production. On load, the app unregisters any legacy Serwist worker from earlier releases so YouTube embeds are not intercepted. Install metadata and icons remain; offline caching is intentionally disabled to keep playback reliable.
 
+**Video autoplay:** Playback uses the same pre-PWA YouTube IFrame Player API flow (`autoplay=1`, muted on mobile/coarse pointers and in installed PWAs, with a mute retry if autoplay stalls).
+
 Regenerate PNG icons from the logo with `node scripts/generate-pwa-icons.mjs` after changing [`public/sktube-logo.svg`](public/sktube-logo.svg).
 
 ## Scripts
