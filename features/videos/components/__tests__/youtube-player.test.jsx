@@ -46,32 +46,6 @@ vi.mock("@/features/videos/youtube-iframe-api", () => ({
 
 import { YoutubePlayer } from "@/features/videos/components/youtube-player";
 
-function setDesktopEnvironment() {
-  Object.defineProperty(window.navigator, "userAgent", {
-    configurable: true,
-    value:
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-  });
-  window.matchMedia = vi.fn().mockReturnValue({ matches: false });
-  Object.defineProperty(window.navigator, "standalone", {
-    configurable: true,
-    value: false,
-  });
-}
-
-function setMobileEnvironment() {
-  Object.defineProperty(window.navigator, "userAgent", {
-    configurable: true,
-    value:
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
-  });
-  window.matchMedia = vi.fn().mockReturnValue({ matches: true });
-  Object.defineProperty(window.navigator, "standalone", {
-    configurable: true,
-    value: false,
-  });
-}
-
 describe("YoutubePlayer", () => {
   let container;
 
@@ -84,7 +58,16 @@ describe("YoutubePlayer", () => {
     getPlayerState.mockReset();
     destroy.mockReset();
     getPlayerState.mockReturnValue(1);
-    setDesktopEnvironment();
+    Object.defineProperty(window.navigator, "userAgent", {
+      configurable: true,
+      value:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    });
+    window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+    Object.defineProperty(window.navigator, "standalone", {
+      configurable: true,
+      value: false,
+    });
   });
 
   afterEach(() => {
@@ -92,33 +75,7 @@ describe("YoutubePlayer", () => {
     vi.clearAllTimers();
   });
 
-  it("renders a native iframe embed on mobile clients", async () => {
-    setMobileEnvironment();
-
-    const root = createRoot(container);
-
-    await act(async () => {
-      root.render(
-        createElement(YoutubePlayer, {
-          videoId: "dQw4w9WgXcQ",
-          appOrigin: "http://localhost:3000",
-          title: "Test video",
-        }),
-      );
-      await Promise.resolve();
-    });
-
-    const iframe = container.querySelector("iframe");
-
-    expect(iframe).not.toBeNull();
-    expect(iframe.getAttribute("src")).toContain("youtube-nocookie.com/embed/dQw4w9WgXcQ");
-    expect(iframe.getAttribute("src")).toContain("mute=1");
-    expect(latestPlayerOptions).toBeUndefined();
-
-    root.unmount();
-  });
-
-  it("creates a YouTube API player on desktop and calls playVideo on ready", async () => {
+  it("creates a YouTube player with enablejsapi and calls playVideo on ready", async () => {
     vi.useFakeTimers();
 
     const root = createRoot(container);
@@ -134,12 +91,13 @@ describe("YoutubePlayer", () => {
       await Promise.resolve();
     });
 
-    await act(async () => {
-      await Promise.resolve();
-    });
-
     expect(latestPlayerOptions.videoId).toBe("dQw4w9WgXcQ");
-    expect(latestPlayerOptions.playerVars.enablejsapi).toBe(1);
+    expect(latestPlayerOptions.host).toBe("https://www.youtube-nocookie.com");
+    expect(latestPlayerOptions.playerVars).toMatchObject({
+      autoplay: 1,
+      enablejsapi: 1,
+      origin: window.location.origin,
+    });
     expect(playVideo).toHaveBeenCalledTimes(1);
 
     await act(async () => {
@@ -152,7 +110,7 @@ describe("YoutubePlayer", () => {
     vi.useRealTimers();
   });
 
-  it("retries with mute when desktop API playback has not started", async () => {
+  it("retries with mute when playback has not started", async () => {
     vi.useFakeTimers();
     getPlayerState.mockReturnValue(5);
 
@@ -167,7 +125,6 @@ describe("YoutubePlayer", () => {
         }),
       );
       await Promise.resolve();
-      await Promise.resolve();
     });
 
     await act(async () => {
@@ -179,5 +136,30 @@ describe("YoutubePlayer", () => {
 
     root.unmount();
     vi.useRealTimers();
+  });
+
+  it("starts muted on mobile user agents", async () => {
+    Object.defineProperty(window.navigator, "userAgent", {
+      configurable: true,
+      value:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
+    });
+
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        createElement(YoutubePlayer, {
+          videoId: "dQw4w9WgXcQ",
+          appOrigin: "http://localhost:3000",
+          title: "Test video",
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(latestPlayerOptions.playerVars.mute).toBe(1);
+
+    root.unmount();
   });
 });

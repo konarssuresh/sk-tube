@@ -12,16 +12,6 @@ export function resolvePlayerOrigin(appOrigin) {
   return appOrigin;
 }
 
-export function shouldUseMutedAutoplay({
-  userAgent = "",
-  coarsePointer = false,
-  narrowViewport = false,
-} = {}) {
-  const isMobileUserAgent = /iPhone|iPad|iPod|Android/i.test(userAgent);
-
-  return isMobileUserAgent || coarsePointer || narrowViewport;
-}
-
 export function isInstalledPwa() {
   if (typeof window === "undefined") {
     return false;
@@ -33,19 +23,19 @@ export function isInstalledPwa() {
   );
 }
 
-export function shouldUseNativeYoutubeEmbed({
+export function shouldUseMutedAutoplay({
   userAgent = "",
   coarsePointer = false,
   narrowViewport = false,
   installedPwa = false,
 } = {}) {
+  const isMobileUserAgent = /iPhone|iPad|iPod|Android/i.test(userAgent);
+
   return (
-    installedPwa ||
-    shouldUseMutedAutoplay({
-      userAgent,
-      coarsePointer,
-      narrowViewport,
-    })
+    isMobileUserAgent ||
+    coarsePointer ||
+    narrowViewport ||
+    installedPwa
   );
 }
 
@@ -60,23 +50,9 @@ export function getYoutubePlayerVars({ appOrigin, useMutedAutoplay = false }) {
   };
 }
 
-export function getYoutubeEmbedParams({ appOrigin, useMutedAutoplay = false }) {
-  return {
-    autoplay: 1,
-    playsinline: 1,
-    rel: 0,
-    origin: appOrigin,
-    ...(useMutedAutoplay ? { mute: 1 } : {}),
-  };
-}
-
-export function buildYoutubeEmbedUrl({
-  videoId,
-  appOrigin,
-  useMutedAutoplay = false,
-}) {
+export function buildYoutubeEmbedUrl({ videoId, appOrigin }) {
   const url = new URL(`${YOUTUBE_NO_COOKIE_HOST}/embed/${videoId}`);
-  const playerVars = getYoutubeEmbedParams({ appOrigin, useMutedAutoplay });
+  const playerVars = getYoutubePlayerVars({ appOrigin });
 
   for (const [key, value] of Object.entries(playerVars)) {
     url.searchParams.set(key, String(value));

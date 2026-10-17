@@ -6,7 +6,6 @@ import {
   getYoutubePlayerVars,
   resolvePlayerOrigin,
   shouldUseMutedAutoplay,
-  shouldUseNativeYoutubeEmbed,
 } from "@/features/videos/player-utils";
 
 describe("player utils", () => {
@@ -27,7 +26,7 @@ describe("player utils", () => {
     expect(url.origin).toBe("https://www.youtube-nocookie.com");
     expect(url.pathname).toBe("/embed/dQw4w9WgXcQ");
     expect(url.searchParams.get("autoplay")).toBe("1");
-    expect(url.searchParams.get("enablejsapi")).toBeNull();
+    expect(url.searchParams.get("enablejsapi")).toBe("1");
     expect(url.searchParams.get("playsinline")).toBe("1");
     expect(url.searchParams.get("rel")).toBe("0");
     expect(url.searchParams.get("origin")).toBe("http://localhost:3000");
@@ -65,38 +64,14 @@ describe("player utils", () => {
     ).toBe(false);
   });
 
-  it("adds mute to embed URLs when muted autoplay is requested", () => {
-    const embedUrl = buildYoutubeEmbedUrl({
-      videoId: "dQw4w9WgXcQ",
-      appOrigin: "http://localhost:3000",
-      useMutedAutoplay: true,
-    });
-
-    expect(new URL(embedUrl).searchParams.get("mute")).toBe("1");
-  });
-
-  it("prefers native embed on mobile and installed PWAs", () => {
+  it("uses muted autoplay in installed PWAs", () => {
     expect(
-      shouldUseNativeYoutubeEmbed({
-        userAgent:
-          "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
-      }),
-    ).toBe(true);
-
-    expect(
-      shouldUseNativeYoutubeEmbed({
+      shouldUseMutedAutoplay({
         installedPwa: true,
         userAgent:
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
       }),
     ).toBe(true);
-
-    expect(
-      shouldUseNativeYoutubeEmbed({
-        userAgent:
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-      }),
-    ).toBe(false);
   });
 
   it("prefers the browser origin when available", () => {
