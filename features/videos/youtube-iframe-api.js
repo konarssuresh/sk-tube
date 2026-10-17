@@ -36,6 +36,11 @@ export function loadYoutubeIframeApi() {
     );
 
     if (existingScript) {
+      if (window.YT?.Player) {
+        resolve(window.YT);
+        return;
+      }
+
       return;
     }
 
